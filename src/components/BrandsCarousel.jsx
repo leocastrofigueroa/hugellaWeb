@@ -89,43 +89,47 @@ function BrandsCarousel() {
   const carruselRef = useRef(null);
 
   useEffect(() => {
-
     const carrusel = carruselRef.current;
-
+  
     if (!carrusel) return;
-
+  
     let animacion;
-
-    const velocidad = 0.5;
-
+    let interactuando = false;
+    const velocidad = 1;
+  
     const mover = () => {
-
-      carrusel.scrollLeft += velocidad;
-
-      /*
-        Cuando llegamos aproximadamente
-        a la mitad del contenido duplicado,
-        volvemos al principio.
-
-        Esto genera un movimiento continuo.
-      */
-
-      if (
-        carrusel.scrollLeft >=
-        carrusel.scrollWidth / 2
-      ) {
-        carrusel.scrollLeft = 0;
+      if (!interactuando) {
+        carrusel.scrollLeft += velocidad;
+  
+        if (carrusel.scrollLeft >= carrusel.scrollWidth / 2) {
+          carrusel.scrollLeft = 0;
+        }
       }
-
+  
       animacion = requestAnimationFrame(mover);
     };
-
+  
+    const tocar = () => {
+      interactuando = true;
+    };
+  
+    const soltar = () => {
+      interactuando = false;
+    };
+  
+    carrusel.addEventListener("touchstart", tocar, { passive: true });
+    carrusel.addEventListener("touchend", soltar, { passive: true });
+    carrusel.addEventListener("touchcancel", soltar, { passive: true });
+  
     animacion = requestAnimationFrame(mover);
-
+  
     return () => {
       cancelAnimationFrame(animacion);
+  
+      carrusel.removeEventListener("touchstart", tocar);
+      carrusel.removeEventListener("touchend", soltar);
+      carrusel.removeEventListener("touchcancel", soltar);
     };
-
   }, []);
 
   return (
@@ -165,9 +169,11 @@ function BrandsCarousel() {
             flex
             items-center
             gap-6
-            overflow-hidden
+            overflow-x-auto
+            overflow-y-hidden
             px-6
             select-none
+            touch-pan-x
           "
         >
 
