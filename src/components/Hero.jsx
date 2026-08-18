@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import productsPromise from "../data/products.js";
 import "@google/model-viewer";
@@ -39,10 +39,12 @@ const productosCarrusel = [
 function Hero() {
   const [productos, setProductos] = useState([]);
   const [actual, setActual] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
-  const heroRef = useRef(null);
   const navigate = useNavigate();
+
+  // =========================
+  // CARGAR PRODUCTOS
+  // =========================
 
   useEffect(() => {
     productsPromise
@@ -54,11 +56,10 @@ function Hero() {
       });
   }, []);
 
-  /*
-   * Buscamos EXCLUSIVAMENTE por ID.
-   * Así evitamos que una carpeta incorrecta
-   * haga aparecer otro producto.
-   */
+  // =========================
+  // CONSTRUIR BANNERS
+  // =========================
+
   const banners = productosCarrusel
     .map((item) => {
       const producto = productos.find(
@@ -69,6 +70,7 @@ function Hero() {
         console.error(
           `Producto del carrusel no encontrado. ID: ${item.id}`
         );
+
         return null;
       }
 
@@ -80,6 +82,10 @@ function Hero() {
     })
     .filter(Boolean);
 
+  // =========================
+  // CAMBIO AUTOMÁTICO
+  // =========================
+
   useEffect(() => {
     if (banners.length !== 6) return;
 
@@ -90,33 +96,9 @@ function Hero() {
     return () => clearInterval(intervalo);
   }, [banners.length]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!heroRef.current) return;
-
-      const rect = heroRef.current.getBoundingClientRect();
-      const altura = rect.height;
-
-      const distancia = Math.max(
-        0,
-        Math.min(altura, -rect.top)
-      );
-
-      const progreso = distancia / altura;
-
-      setScrollProgress(progreso);
-    };
-
-    window.addEventListener("scroll", handleScroll, {
-      passive: true,
-    });
-
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  // =========================
+  // SI TODAVÍA NO CARGÓ
+  // =========================
 
   if (banners.length === 0) {
     return null;
@@ -124,21 +106,22 @@ function Hero() {
 
   const producto = banners[actual];
 
+  // =========================
+  // CONTROLES CARRUSEL
+  // =========================
+
   const siguiente = () => {
-    setActual((prev) => (prev + 1) % 6);
+    setActual((prev) => (prev + 1) % banners.length);
   };
 
   const anterior = () => {
-    setActual((prev) => (prev - 1 + 6) % 6);
+    setActual(
+      (prev) => (prev - 1 + banners.length) % banners.length
+    );
   };
-
-  const productoY = scrollProgress * 70;
-  const productoScale = 1 + scrollProgress * 0.04;
-  const textoOpacity = 1 - scrollProgress * 0.25;
 
   return (
     <section
-      ref={heroRef}
       className="
         relative
         max-w-7xl
@@ -149,6 +132,7 @@ function Hero() {
         sm:py-8
       "
     >
+
       <div
         className="
           relative
@@ -160,7 +144,9 @@ function Hero() {
         "
       >
 
+        {/* ================================================= */}
         {/* PRODUCTO 3D */}
+        {/* ================================================= */}
 
         <div
           className="
@@ -175,15 +161,8 @@ function Hero() {
             justify-center
             overflow-hidden
           "
-          style={{
-            transform: `
-              translate3d(0, ${productoY}px, 0)
-              scale(${productoScale})
-            `,
-            transformOrigin: "center center",
-            willChange: "transform",
-          }}
         >
+
           <model-viewer
             key={`${producto.id}-${producto.modelo3D}`}
             src={producto.modelo3D}
@@ -202,9 +181,13 @@ function Hero() {
               background: "transparent",
             }}
           />
+
         </div>
 
+
+        {/* ================================================= */}
         {/* DEGRADADO */}
+        {/* ================================================= */}
 
         <div
           className="
@@ -218,26 +201,26 @@ function Hero() {
           "
         />
 
+
+        {/* ================================================= */}
         {/* INFORMACIÓN */}
+        {/* ================================================= */}
 
         <div
-  className="
-    absolute
-    inset-y-0
-    left-[16%]
-    w-[44%]
-    sm:left-[11%]
-    sm:w-[42%]
-    flex
-    items-center
-    text-white
-    z-10
-  "
-          style={{
-            opacity: textoOpacity,
-            willChange: "opacity",
-          }}
+          className="
+            absolute
+            inset-y-0
+            left-[16%]
+            w-[44%]
+            sm:left-[11%]
+            sm:w-[42%]
+            flex
+            items-center
+            text-white
+            z-10
+          "
         >
+
           <div className="w-full">
 
             <p
@@ -251,6 +234,7 @@ function Hero() {
             >
               {producto.marca}
             </p>
+
 
             <h1
               className="
@@ -266,7 +250,9 @@ function Hero() {
               {producto.nombre}
             </h1>
 
+
             {producto.precio > 0 && (
+
               <p
                 className="
                   text-white
@@ -278,7 +264,9 @@ function Hero() {
               >
                 ${producto.precio.toLocaleString("es-AR")}
               </p>
+
             )}
+
 
             <button
               type="button"
@@ -307,9 +295,13 @@ function Hero() {
             </button>
 
           </div>
+
         </div>
 
+
+        {/* ================================================= */}
         {/* ANTERIOR */}
+        {/* ================================================= */}
 
         <button
           type="button"
@@ -338,7 +330,10 @@ function Hero() {
           ‹
         </button>
 
+
+        {/* ================================================= */}
         {/* SIGUIENTE */}
+        {/* ================================================= */}
 
         <button
           type="button"
@@ -367,7 +362,10 @@ function Hero() {
           ›
         </button>
 
+
+        {/* ================================================= */}
         {/* INDICADORES */}
+        {/* ================================================= */}
 
         <div
           className="
@@ -380,7 +378,9 @@ function Hero() {
             z-20
           "
         >
+
           {banners.map((banner, index) => (
+
             <button
               key={banner.id}
               type="button"
@@ -399,10 +399,13 @@ function Hero() {
                 }
               `}
             />
+
           ))}
+
         </div>
 
       </div>
+
     </section>
   );
 }

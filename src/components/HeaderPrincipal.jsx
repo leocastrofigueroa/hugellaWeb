@@ -83,7 +83,7 @@ function Header() {
   // =========================
 
   const claseNav = ({ isActive }) =>
-    `font-semibold transition-all duration-300 cursor-pointer ${
+    `font-semibold transition-colors duration-300 cursor-pointer ${
       isActive
         ? "text-white"
         : "text-white/85 hover:text-white"
@@ -97,10 +97,9 @@ function Header() {
         z-[9999]
         isolate
         text-white
-        transition-all
-        duration-500
-        ease-out
         shadow-sm
+        transition-shadow
+        duration-300
         ${scrolled ? "shadow-xl" : "shadow-none"}
       `}
       style={{
@@ -113,20 +112,24 @@ function Header() {
       {/* ================================================= */}
 
       <div
-        className={`
-          max-w-7xl mx-auto
-          px-4 sm:px-6 lg:px-8
-          transition-all duration-500 ease-out
-          ${scrolled ? "py-1" : "py-2"}
-        `}
+        className="
+          max-w-7xl
+          mx-auto
+          px-4
+          sm:px-6
+          lg:px-8
+          py-2
+        "
       >
 
         <div
-          className={`
-            flex items-center gap-4 sm:gap-6
-            transition-all duration-500 ease-out
-            ${scrolled ? "h-16" : "h-20"}
-          `}
+          className="
+            flex
+            items-center
+            gap-4
+            sm:gap-6
+            h-20
+          "
         >
 
           {/* ================================================= */}
@@ -148,17 +151,12 @@ function Header() {
             <img
               src="/imgHugella/logo.png"
               alt="Hugella Equipamiento Comercial"
-              className={`
+              className="
+                w-56
+                sm:w-64
+                lg:w-72
                 object-contain
-                transition-all
-                duration-500
-                ease-out
-                ${
-                  scrolled
-                    ? "w-48 sm:w-56 lg:w-60 translate-y-0"
-                    : "w-56 sm:w-64 lg:w-72 translate-y-2"
-                }
-              `}
+              "
             />
 
           </Link>
@@ -254,9 +252,7 @@ function Header() {
               px-5
               rounded-xl
               font-bold
-              transition-all
-              duration-300
-              hover:scale-105
+              transition
               shrink-0
             "
           >
@@ -379,27 +375,18 @@ function Header() {
           sm:block
           border-t
           border-white/20
-          transition-all
-          duration-500
-          ease-out
         "
       >
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           <div
-            className={`
+            className="
               flex
               items-center
               gap-10
-              transition-all
-              duration-500
-              ${
-                scrolled
-                  ? "h-11"
-                  : "h-14"
-              }
-            `}
+              h-14
+            "
           >
 
             <NavLink
