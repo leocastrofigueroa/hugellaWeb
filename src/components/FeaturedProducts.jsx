@@ -2,32 +2,46 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import productsPromise from "../data/products.js";
 
+// =========================================================
+// PRODUCTOS DESTACADOS
+// =========================================================
+
 const destacados = [
   {
-    id: 53,
-    imagen: "/imgHugella/destacados/heladeraPhilco161L.png",
+    id: "PR-053",
+    imagen:
+      "/imgHugella/destacados/heladeraPhilco161L.png",
   },
   {
-    id: 2,
-    imagen: "/imgHugella/destacados/aireAcondicionado.png",
+    id: "PR-002",
+    imagen:
+      "/imgHugella/destacados/aireAcondicionado.png",
   },
   {
-    id: 30,
-    imagen: "/imgHugella/destacados/celularSamsungA17.png",
+    id: "PR-030",
+    imagen:
+      "/imgHugella/destacados/celularSamsungA17.png",
   },
   {
-    id: 42,
-    imagen: "/imgHugella/destacados/exhibidoraDelhi.png",
+    id: "PR-042",
+    imagen:
+      "/imgHugella/destacados/exhibidoraDelhi.png",
   },
   {
-    id: 106,
-    imagen: "/imgHugella/destacados/vitrinaFiambrera.png",
+    id: "PR-106",
+    imagen:
+      "/imgHugella/destacados/vitrinaFiambrera.png",
   },
   {
-    id: 69,
-    imagen: "/imgHugella/destacados/lavarropasHisense.png",
+    id: "PR-069",
+    imagen:
+      "/imgHugella/destacados/lavarropasHisense.png",
   },
 ];
+
+// =========================================================
+// COMPONENTE
+// =========================================================
 
 function FeaturedProducts() {
   const [products, setProducts] = useState([]);
@@ -48,6 +62,10 @@ function FeaturedProducts() {
       });
   }, []);
 
+  // =======================================================
+  // CARGANDO
+  // =======================================================
+
   if (cargando) {
     return (
       <section className="max-w-7xl mx-auto px-4 py-16">
@@ -58,34 +76,24 @@ function FeaturedProducts() {
     );
   }
 
+  // =======================================================
+  // BUSCAR DESTACADOS
+  // =======================================================
+
   const productosDestacados = destacados
     .map((destacado) => {
-      let producto;
-
-      if (destacado.id !== undefined) {
-        producto = products.find(
-          (p) => Number(p.id) === Number(destacado.id)
-        );
-      }
-
-      if (destacado.carpeta) {
-        const carpetaBuscada = destacado.carpeta
-          .trim()
-          .toLowerCase();
-      
-        producto = products.find((p) =>
-          String(p.carpeta || "")
-            .trim()
-            .toLowerCase()
-            .includes(carpetaBuscada)
-        );
-      }
+      const producto = products.find(
+        (p) =>
+          String(p.id).trim().toUpperCase() ===
+          String(destacado.id).trim().toUpperCase()
+      );
 
       if (!producto) {
         console.error(
           "DESTACADO NO ENCONTRADO:",
-          destacado
+          destacado.id
         );
+
         return null;
       }
 
@@ -95,6 +103,10 @@ function FeaturedProducts() {
       };
     })
     .filter(Boolean);
+
+  // =======================================================
+  // VISTA
+  // =======================================================
 
   return (
     <section className="relative w-full">
@@ -113,6 +125,7 @@ function FeaturedProducts() {
         {/* TÍTULO */}
 
         <div className="mb-10 sm:mb-12">
+
           <p
             className="
               text-[#315b91]
@@ -141,6 +154,7 @@ function FeaturedProducts() {
           <p className="text-gray-500 mt-3">
             Algunos de nuestros productos destacados.
           </p>
+
         </div>
 
         {/* TARJETAS */}
@@ -155,12 +169,15 @@ function FeaturedProducts() {
             sm:gap-8
           "
         >
+
           {productosDestacados.map((producto) => (
+
             <Link
               key={producto.id}
               to={`/productos/${producto.id}`}
               className="group block"
             >
+
               <article
                 className="
                   h-full
@@ -188,6 +205,7 @@ function FeaturedProducts() {
                     overflow-hidden
                   "
                 >
+
                   <img
                     src={producto.imagenDestacada}
                     alt={producto.nombre}
@@ -201,6 +219,7 @@ function FeaturedProducts() {
                       group-hover:scale-105
                     "
                   />
+
                 </div>
 
                 {/* INFORMACIÓN */}
@@ -217,6 +236,7 @@ function FeaturedProducts() {
                     text-center
                   "
                 >
+
                   <p className="text-sm text-gray-500 mb-2">
                     {producto.marca}
                   </p>
@@ -257,11 +277,15 @@ function FeaturedProducts() {
                   >
                     Ver producto →
                   </p>
+
                 </div>
 
               </article>
+
             </Link>
+
           ))}
+
         </div>
 
       </div>

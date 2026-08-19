@@ -1,50 +1,72 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import productsPromise from "../data/products.js";
 import "@google/model-viewer";
 
+// =========================================================
+// PRODUCTOS DEL CARRUSEL
+// =========================================================
+
 const productosCarrusel = [
   {
-    id: 8,
-    imagen: "/imgHugella/carrousel/balanzaSystel.png",
-    modelo3D: "/modelos3d/balanza-systel.glb",
+    id: "PR-008",
+    imagen:
+      "/imgHugella/carrousel/balanzaSystel.png",
+    modelo3D:
+      "/modelos3d/balanza-systel.glb",
   },
   {
-    id: 14,
-    imagen: "/imgHugella/destacados/bicicletamtbovertechR29rosa.png",
-    modelo3D: "/modelos3d/bicicleta.glb",
+    id: "PR-014",
+    imagen:
+      "/imgHugella/destacados/bicicletamtbovertechR29rosa.png",
+    modelo3D:
+      "/modelos3d/bicicleta.glb",
   },
   {
-    id: 38,
-    imagen: "/imgHugella/carrousel/cortadoraFiambreSantini.png",
-    modelo3D: "/modelos3d/cortadora-santini.glb",
+    id: "PR-038",
+    imagen:
+      "/imgHugella/carrousel/cortadoraFiambreSantini.png",
+    modelo3D:
+      "/modelos3d/cortadora-santini.glb",
   },
   {
-    id: 47,
-    imagen: "/imgHugella/carrousel/freezerInelro350.png",
-    modelo3D: "/modelos3d/freezer-inelro.glb",
+    id: "PR-047",
+    imagen:
+      "/imgHugella/carrousel/freezerInelro350.png",
+    modelo3D:
+      "/modelos3d/freezer-inelro.glb",
   },
   {
-    id: 60,
-    imagen: "/imgHugella/carrousel/hornoPizzero12Moldes.png",
-    modelo3D: "/modelos3d/horno-pizzero.glb",
+    id: "PR-060",
+    imagen:
+      "/imgHugella/carrousel/hornoPizzero12Moldes.png",
+    modelo3D:
+      "/modelos3d/horno-pizzero.glb",
   },
   {
-    id: 86,
-    imagen: "/imgHugella/destacados/parlanteKenBrownMonsterBox.png",
-    modelo3D: "/modelos3d/parlante-ken-brown.glb",
+    id: "PR-086",
+    imagen:
+      "/imgHugella/destacados/parlanteKenBrownMonsterBox.png",
+    modelo3D:
+      "/modelos3d/parlante-ken-brown.glb",
   },
 ];
+
+// =========================================================
+// COMPONENTE HERO
+// =========================================================
 
 function Hero() {
   const [productos, setProductos] = useState([]);
   const [actual, setActual] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
+  const heroRef = useRef(null);
   const navigate = useNavigate();
 
-  // =========================
+  // =======================================================
   // CARGAR PRODUCTOS
-  // =========================
+  // =======================================================
 
   useEffect(() => {
     productsPromise
@@ -52,18 +74,24 @@ function Hero() {
         setProductos(datos);
       })
       .catch((error) => {
-        console.error("Error cargando productos:", error);
+        console.error(
+          "Error cargando productos:",
+          error
+        );
       });
   }, []);
 
-  // =========================
-  // CONSTRUIR BANNERS
-  // =========================
+  // =======================================================
+  // BUSCAR PRODUCTOS DEL CARRUSEL
+  // =======================================================
 
   const banners = productosCarrusel
     .map((item) => {
+
       const producto = productos.find(
-        (p) => Number(p.id) === item.id
+        (p) =>
+          String(p.id).trim().toUpperCase() ===
+          String(item.id).trim().toUpperCase()
       );
 
       if (!producto) {
@@ -82,9 +110,9 @@ function Hero() {
     })
     .filter(Boolean);
 
-  // =========================
+  // =======================================================
   // CAMBIO AUTOMÁTICO
-  // =========================
+  // =======================================================
 
   useEffect(() => {
     if (banners.length !== 6) return;
@@ -96,9 +124,54 @@ function Hero() {
     return () => clearInterval(intervalo);
   }, [banners.length]);
 
-  // =========================
-  // SI TODAVÍA NO CARGÓ
-  // =========================
+  // =======================================================
+  // SCROLL
+  // =======================================================
+
+  useEffect(() => {
+
+    const handleScroll = () => {
+
+      if (!heroRef.current) return;
+
+      const rect =
+        heroRef.current.getBoundingClientRect();
+
+      const altura = rect.height;
+
+      const distancia = Math.max(
+        0,
+        Math.min(altura, -rect.top)
+      );
+
+      const progreso =
+        distancia / altura;
+
+      setScrollProgress(progreso);
+    };
+
+    window.addEventListener(
+      "scroll",
+      handleScroll,
+      {
+        passive: true,
+      }
+    );
+
+    handleScroll();
+
+    return () => {
+      window.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+    };
+
+  }, []);
+
+  // =======================================================
+  // ESPERAR PRODUCTOS
+  // =======================================================
 
   if (banners.length === 0) {
     return null;
@@ -106,22 +179,44 @@ function Hero() {
 
   const producto = banners[actual];
 
-  // =========================
-  // CONTROLES CARRUSEL
-  // =========================
+  // =======================================================
+  // CONTROLES
+  // =======================================================
 
   const siguiente = () => {
-    setActual((prev) => (prev + 1) % banners.length);
+    setActual(
+      (prev) => (prev + 1) % banners.length
+    );
   };
 
   const anterior = () => {
     setActual(
-      (prev) => (prev - 1 + banners.length) % banners.length
+      (prev) =>
+        (prev - 1 + banners.length) %
+        banners.length
     );
   };
 
+  // =======================================================
+  // ANIMACIÓN SCROLL
+  // =======================================================
+
+  const productoY =
+    scrollProgress * 70;
+
+  const productoScale =
+    1 + scrollProgress * 0.04;
+
+  const textoOpacity =
+    1 - scrollProgress * 0.25;
+
+  // =======================================================
+  // RENDER
+  // =======================================================
+
   return (
     <section
+      ref={heroRef}
       className="
         relative
         max-w-7xl
@@ -144,9 +239,7 @@ function Hero() {
         "
       >
 
-        {/* ================================================= */}
         {/* PRODUCTO 3D */}
-        {/* ================================================= */}
 
         <div
           className="
@@ -161,6 +254,15 @@ function Hero() {
             justify-center
             overflow-hidden
           "
+          style={{
+            transform: `
+              translate3d(0, ${productoY}px, 0)
+              scale(${productoScale})
+            `,
+            transformOrigin:
+              "center center",
+            willChange: "transform",
+          }}
         >
 
           <model-viewer
@@ -184,10 +286,7 @@ function Hero() {
 
         </div>
 
-
-        {/* ================================================= */}
         {/* DEGRADADO */}
-        {/* ================================================= */}
 
         <div
           className="
@@ -201,10 +300,7 @@ function Hero() {
           "
         />
 
-
-        {/* ================================================= */}
         {/* INFORMACIÓN */}
-        {/* ================================================= */}
 
         <div
           className="
@@ -219,6 +315,10 @@ function Hero() {
             text-white
             z-10
           "
+          style={{
+            opacity: textoOpacity,
+            willChange: "opacity",
+          }}
         >
 
           <div className="w-full">
@@ -235,7 +335,6 @@ function Hero() {
               {producto.marca}
             </p>
 
-
             <h1
               className="
                 text-white
@@ -250,9 +349,7 @@ function Hero() {
               {producto.nombre}
             </h1>
 
-
             {producto.precio > 0 && (
-
               <p
                 className="
                   text-white
@@ -262,16 +359,19 @@ function Hero() {
                   mt-5
                 "
               >
-                ${producto.precio.toLocaleString("es-AR")}
+                $
+                {producto.precio.toLocaleString(
+                  "es-AR"
+                )}
               </p>
-
             )}
-
 
             <button
               type="button"
               onClick={() =>
-                navigate(`/productos/${producto.id}`)
+                navigate(
+                  `/productos/${producto.id}`
+                )
               }
               className="
                 mt-6
@@ -298,10 +398,7 @@ function Hero() {
 
         </div>
 
-
-        {/* ================================================= */}
         {/* ANTERIOR */}
-        {/* ================================================= */}
 
         <button
           type="button"
@@ -330,10 +427,7 @@ function Hero() {
           ‹
         </button>
 
-
-        {/* ================================================= */}
         {/* SIGUIENTE */}
-        {/* ================================================= */}
 
         <button
           type="button"
@@ -362,10 +456,7 @@ function Hero() {
           ›
         </button>
 
-
-        {/* ================================================= */}
         {/* INDICADORES */}
-        {/* ================================================= */}
 
         <div
           className="
@@ -384,8 +475,12 @@ function Hero() {
             <button
               key={banner.id}
               type="button"
-              aria-label={`Ir al producto ${index + 1}`}
-              onClick={() => setActual(index)}
+              aria-label={`Ir al producto ${
+                index + 1
+              }`}
+              onClick={() =>
+                setActual(index)
+              }
               className={`
                 w-3
                 h-3

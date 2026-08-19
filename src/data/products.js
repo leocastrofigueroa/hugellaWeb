@@ -1,7 +1,10 @@
 const SHEETS_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWlSu1ArQX5fcque-RsWUCUP9d4qZLI6me9R--dCHuUUPm38XrORq88R0pDVrdEUqcNUzax_E5kBuW/pub?gid=861638820&single=true&output=csv";
 
-// Convierte correctamente el CSV aunque las descripciones tengan comas
+// =========================================================
+// CONVERTIR CSV
+// =========================================================
+
 function convertirCSV(texto) {
   const filas = [];
   let fila = [];
@@ -63,9 +66,17 @@ function convertirCSV(texto) {
     return [];
   }
 
+  // =========================================================
+  // ENCABEZADOS
+  // =========================================================
+
   const encabezados = filas[0].map((encabezado) =>
     encabezado.trim().toUpperCase()
   );
+
+  // =========================================================
+  // PRODUCTOS
+  // =========================================================
 
   return filas.slice(1).map((fila, index) => {
     const datos = {};
@@ -74,9 +85,37 @@ function convertirCSV(texto) {
       datos[encabezado] = fila[columna]?.trim() || "";
     });
 
-    const valorOferta = (
-      datos["OFERTA"] || ""
-    ).toUpperCase().trim();
+    // =======================================================
+    // ID
+    // =======================================================
+
+    /*
+     * IMPORTANTE:
+     *
+     * Los IDs ahora son:
+     *
+     * PR-001
+     * PR-002
+     * PR-003
+     *
+     * Por eso NO debemos convertirlos a Number.
+     */
+
+    const id =
+      datos["ID"] ||
+      fila[0] ||
+      `PR-${String(index + 1).padStart(3, "0")}`;
+
+    // =======================================================
+    // REFERENCIA DE IMÁGENES
+    // =======================================================
+
+    const carpeta =
+      datos["REFERENCIA IMAGENES"] || "";
+
+    // =======================================================
+    // PRECIOS
+    // =======================================================
 
     const precioNormal = Number(
       (datos["PRECIO"] || "").replace(/[^\d]/g, "")
@@ -86,22 +125,61 @@ function convertirCSV(texto) {
       (datos["PRECIO OFERTA"] || "").replace(/[^\d]/g, "")
     );
 
+    // =======================================================
+    // OFERTA
+    // =======================================================
+
+    const valorOferta = (
+      datos["OFERTA"] || ""
+    )
+      .toUpperCase()
+      .trim();
+
+    // =======================================================
+    // PRODUCTO
+    // =======================================================
+
     return {
-      // Usamos la posición de la fila como ID único
-      id: index + 1,
+      // ID REAL DE GOOGLE SHEETS
+      id: id.trim(),
 
-      carpeta: datos["REFERENCIA IMAGENES"],
+      // Carpeta de imágenes
+      carpeta,
 
-      categoria: datos["TIPO"],
+      // Imagen principal
+      imagen: carpeta
+        ? `/imgHugella/productos/${encodeURIComponent(
+            carpeta
+          )}/principal.png`
+        : "",
 
-      nombre: datos["PRODUCTO"],
+      imagenPrincipal: carpeta
+        ? `/imgHugella/productos/${encodeURIComponent(
+            carpeta
+          )}/principal.png`
+        : "",
 
-      marca: datos["MARCA"],
+      carpetaImagenes: carpeta
+        ? `/imgHugella/productos/${encodeURIComponent(
+            carpeta
+          )}`
+        : "",
+
+      categoria:
+        datos["TIPO"] || "",
+
+      nombre:
+        datos["PRODUCTO"] || "",
+
+      marca:
+        datos["MARCA"] || "",
 
       precio: precioNormal,
 
       precioOferta:
-        precioOferta > 0 ? precioOferta : null,
+        precioOferta > 0
+          ? precioOferta
+          : null,
 
       oferta:
         valorOferta === "SI" ||
@@ -123,10 +201,16 @@ function convertirCSV(texto) {
   });
 }
 
+// =========================================================
+// CARGAR PRODUCTOS DESDE GOOGLE SHEETS
+// =========================================================
+
 const productsPromise = fetch(SHEETS_URL)
   .then((respuesta) => {
     if (!respuesta.ok) {
-      throw new Error("No se pudo acceder a Google Sheets");
+      throw new Error(
+        "No se pudo acceder a Google Sheets"
+      );
     }
 
     return respuesta.text();
