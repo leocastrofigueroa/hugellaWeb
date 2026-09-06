@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, Menu, X } from "lucide-react";
 
 function Header() {
@@ -9,30 +9,39 @@ function Header() {
   const [busqueda, setBusqueda] = useState("");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [categoriasAbiertas, setCategoriasAbiertas] = useState(false);
 
-  // =========================
-  // DETECTAR SCROLL
-  // =========================
+  const categoriasRef = useRef(null);
 
   useEffect(() => {
     const manejarScroll = () => {
       setScrolled(window.scrollY > 40);
     };
 
-    window.addEventListener("scroll", manejarScroll, {
-      passive: true,
-    });
-
+    window.addEventListener("scroll", manejarScroll, { passive: true });
     manejarScroll();
 
-    return () => {
+    return () =>
       window.removeEventListener("scroll", manejarScroll);
-    };
   }, []);
 
-  // =========================
-  // VOLVER AL INICIO
-  // =========================
+  // Cerrar Categorías al hacer clic fuera
+  useEffect(() => {
+    const manejarClickFuera = (event) => {
+      if (
+        categoriasRef.current &&
+        !categoriasRef.current.contains(event.target)
+      ) {
+        setCategoriasAbiertas(false);
+      }
+    };
+
+    document.addEventListener("mousedown", manejarClickFuera);
+
+    return () => {
+      document.removeEventListener("mousedown", manejarClickFuera);
+    };
+  }, []);
 
   const irAlInicio = (e) => {
     if (location.pathname === "/") {
@@ -46,11 +55,8 @@ function Header() {
     }
 
     setMenuAbierto(false);
+    setCategoriasAbiertas(false);
   };
-
-  // =========================
-  // BUSCADOR
-  // =========================
 
   const realizarBusqueda = (e) => {
     e.preventDefault();
@@ -68,19 +74,35 @@ function Header() {
     );
 
     setMenuAbierto(false);
+    setCategoriasAbiertas(false);
   };
-
-  // =========================
-  // CERRAR MENU
-  // =========================
 
   const cerrarMenu = () => {
     setMenuAbierto(false);
+    setCategoriasAbiertas(false);
   };
 
-  // =========================
-  // ESTILO NAVEGACIÓN
-  // =========================
+  const irACategoria = (categoria) => {
+    navigate(
+      `/productos?grupo=${encodeURIComponent(categoria)}`
+    );
+
+    setCategoriasAbiertas(false);
+    setMenuAbierto(false);
+  };
+
+  const categorias = [
+    "Electrodomésticos",
+    "Tecnología",
+    "TV y Audio",
+    "Cuidado Personal",
+    "Herramientas",
+    "Equipamiento Comercial",
+    "Cocina",
+    "Deportes y Movilidad",
+    "Juguetes",
+    "Hogar y Muebles",
+  ];
 
   const claseNav = ({ isActive }) =>
     `font-semibold transition-colors duration-300 cursor-pointer ${
@@ -106,89 +128,31 @@ function Header() {
         backgroundColor: "var(--hugella-blue)",
       }}
     >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        <div className="flex items-center gap-4 sm:gap-6 h-20">
 
-      {/* ================================================= */}
-      {/* CABECERA PRINCIPAL */}
-      {/* ================================================= */}
-
-      <div
-        className="
-          max-w-7xl
-          mx-auto
-          px-4
-          sm:px-6
-          lg:px-8
-          py-2
-        "
-      >
-
-        <div
-          className="
-            flex
-            items-center
-            gap-4
-            sm:gap-6
-            h-20
-          "
-        >
-
-          {/* ================================================= */}
           {/* LOGO */}
-          {/* ================================================= */}
-
           <Link
             to="/"
             onClick={irAlInicio}
-            className="
-              shrink-0
-              flex
-              items-center
-              relative
-              z-50
-            "
+            className="shrink-0 flex items-center relative z-50"
           >
-
             <img
               src="/imgHugella/logo.png"
               alt="Hugella Equipamiento Comercial"
-              className="
-                w-56
-                sm:w-64
-                lg:w-72
-                object-contain
-              "
+              className="w-56 sm:w-64 lg:w-72 object-contain"
             />
-
           </Link>
 
-
-          {/* ================================================= */}
           {/* BUSCADOR DESKTOP */}
-          {/* ================================================= */}
-
           <form
             onSubmit={realizarBusqueda}
-            className="
-              hidden
-              sm:flex
-              flex-1
-              h-12
-              relative
-              z-50
-            "
+            className="hidden sm:flex flex-1 h-12 relative z-50"
           >
-
             <div className="relative flex-1">
-
               <Search
                 size={21}
-                className="
-                  absolute
-                  left-4
-                  top-1/2
-                  -translate-y-1/2
-                  text-[#0B2A4A]
-                "
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0B2A4A]"
               />
 
               <input
@@ -196,132 +160,48 @@ function Header() {
                 placeholder="¿Qué estás buscando?"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="
-                  w-full
-                  h-12
-                  rounded-l-xl
-                  bg-white
-                  text-gray-800
-                  placeholder:text-gray-400
-                  pl-12
-                  pr-5
-                  outline-none
-                "
+                className="w-full h-12 rounded-l-xl bg-white text-gray-800 placeholder:text-gray-400 pl-12 pr-5 outline-none"
               />
-
             </div>
 
             <button
               type="submit"
-              className="
-                h-12
-                bg-[#0B2A4A]
-                hover:bg-[#08213A]
-                text-white
-                px-7
-                rounded-r-xl
-                transition
-                font-bold
-              "
+              className="h-12 bg-[#0B2A4A] hover:bg-[#08213A] text-white px-7 rounded-r-xl transition font-bold"
             >
               Buscar
             </button>
-
           </form>
 
-
-          {/* ================================================= */}
           {/* WHATSAPP DESKTOP */}
-          {/* ================================================= */}
-
           <a
             href="https://wa.me/5492614685967"
             target="_blank"
             rel="noopener noreferrer"
-            className="
-              hidden
-              sm:flex
-              relative
-              z-50
-              items-center
-              justify-center
-              h-11
-              bg-green-600
-              hover:bg-green-700
-              text-white
-              px-5
-              rounded-xl
-              font-bold
-              transition
-              shrink-0
-            "
+            className="hidden sm:flex relative z-50 items-center justify-center h-11 bg-green-600 hover:bg-green-700 text-white px-5 rounded-xl font-bold transition shrink-0"
           >
             WhatsApp
           </a>
 
-
-          {/* ================================================= */}
-          {/* MENU MOBILE */}
-          {/* ================================================= */}
-
+          {/* BOTÓN MOBILE */}
           <button
             type="button"
             onClick={() => setMenuAbierto(!menuAbierto)}
-            className="
-              sm:hidden
-              ml-auto
-              w-11
-              h-11
-              rounded-xl
-              bg-white/10
-              border
-              border-white/30
-              flex
-              items-center
-              justify-center
-              relative
-              z-50
-            "
+            className="sm:hidden ml-auto w-11 h-11 rounded-xl bg-white/10 border border-white/30 flex items-center justify-center relative z-50"
             aria-label="Abrir menú"
           >
-
-            {menuAbierto ? (
-              <X size={25} />
-            ) : (
-              <Menu size={25} />
-            )}
-
+            {menuAbierto ? <X size={25} /> : <Menu size={25} />}
           </button>
-
         </div>
 
-
-        {/* ================================================= */}
         {/* BUSCADOR MOBILE */}
-        {/* ================================================= */}
-
         <form
           onSubmit={realizarBusqueda}
-          className="
-            sm:hidden
-            flex
-            pb-4
-            relative
-            z-50
-          "
+          className="sm:hidden flex pb-4 relative z-50"
         >
-
           <div className="relative flex-1">
-
             <Search
               size={19}
-              className="
-                absolute
-                left-4
-                top-1/2
-                -translate-y-1/2
-                text-[#0B2A4A]
-              "
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0B2A4A]"
             />
 
             <input
@@ -329,65 +209,23 @@ function Header() {
               placeholder="¿Qué estás buscando?"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="
-                w-full
-                h-12
-                rounded-l-xl
-                bg-white
-                text-gray-800
-                placeholder:text-gray-400
-                pl-11
-                pr-3
-                outline-none
-              "
+              className="w-full h-12 rounded-l-xl bg-white text-gray-800 placeholder:text-gray-400 pl-11 pr-3 outline-none"
             />
-
           </div>
 
           <button
             type="submit"
-            className="
-              h-12
-              bg-[#0B2A4A]
-              hover:bg-[#08213A]
-              text-white
-              px-4
-              rounded-r-xl
-            "
+            className="h-12 bg-[#0B2A4A] hover:bg-[#08213A] text-white px-4 rounded-r-xl"
           >
             <Search size={20} />
           </button>
-
         </form>
-
       </div>
 
-
-      {/* ================================================= */}
       {/* NAVEGACIÓN DESKTOP */}
-      {/* ================================================= */}
-
-      <nav
-        className="
-          relative
-          z-50
-          hidden
-          sm:block
-          border-t
-          border-white/20
-        "
-      >
-
+      <nav className="relative z-50 hidden sm:block border-t border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          <div
-            className="
-              flex
-              items-center
-              gap-10
-              h-14
-            "
-          >
+          <div className="flex items-center gap-10 h-14">
 
             <NavLink
               to="/"
@@ -397,6 +235,53 @@ function Header() {
             >
               Inicio
             </NavLink>
+
+            {/* CATEGORÍAS */}
+            <div
+              ref={categoriasRef}
+              className="relative h-full flex items-center"
+            >
+              <button
+                type="button"
+                onClick={() =>
+                  setCategoriasAbiertas(!categoriasAbiertas)
+                }
+                className={`
+                  h-full
+                  px-4
+                  font-semibold
+                  transition-colors
+                  duration-300
+                  cursor-pointer
+                  ${
+                    categoriasAbiertas
+                      ? "text-white bg-[#0B2A4A]"
+                      : "text-white/85 hover:text-white"
+                  }
+                `}
+              >
+                Categorías
+              </button>
+
+              {categoriasAbiertas && (
+                <div className="absolute top-full left-0 w-72 bg-[#0B2A4A] shadow-2xl overflow-hidden z-[10000]">
+
+                  <div className="py-2">
+                    {categorias.map((categoria) => (
+                      <button
+                        key={categoria}
+                        type="button"
+                        onClick={() => irACategoria(categoria)}
+                        className="w-full text-left px-5 py-3 text-white font-semibold hover:bg-white/10 transition-colors"
+                      >
+                        {categoria}
+                      </button>
+                    ))}
+                  </div>
+
+                </div>
+              )}
+            </div>
 
             <NavLink
               to="/productos"
@@ -431,28 +316,12 @@ function Header() {
             </NavLink>
 
           </div>
-
         </div>
-
       </nav>
 
-
-      {/* ================================================= */}
-      {/* MENU MOBILE */}
-      {/* ================================================= */}
-
+      {/* MENÚ MOBILE */}
       {menuAbierto && (
-
-        <div
-          className="
-            relative
-            z-50
-            sm:hidden
-            border-t
-            border-white/20
-          "
-        >
-
+        <div className="relative z-50 sm:hidden border-t border-white/20">
           <div className="px-4 py-4 space-y-2">
 
             <NavLink
@@ -469,6 +338,49 @@ function Header() {
             >
               Inicio
             </NavLink>
+
+            {/* CATEGORÍAS MOBILE */}
+            <div ref={categoriasRef}>
+              <button
+                type="button"
+                onClick={() =>
+                  setCategoriasAbiertas(!categoriasAbiertas)
+                }
+                className={`
+                  w-full
+                  text-left
+                  px-4
+                  py-3
+                  rounded-xl
+                  font-semibold
+                  transition
+                  ${
+                    categoriasAbiertas
+                      ? "bg-[#0B2A4A] text-white"
+                      : "text-white hover:bg-white/10"
+                  }
+                `}
+              >
+                Categorías
+              </button>
+
+              {categoriasAbiertas && (
+                <div className="mt-1 ml-3 space-y-1">
+
+                  {categorias.map((categoria) => (
+                    <button
+                      key={categoria}
+                      type="button"
+                      onClick={() => irACategoria(categoria)}
+                      className="block w-full text-left px-4 py-2.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition"
+                    >
+                      {categoria}
+                    </button>
+                  ))}
+
+                </div>
+              )}
+            </div>
 
             <NavLink
               to="/productos"
@@ -534,28 +446,14 @@ function Header() {
               href="https://wa.me/5492614685967"
               target="_blank"
               rel="noopener noreferrer"
-              className="
-                block
-                mt-3
-                bg-green-600
-                hover:bg-green-700
-                text-white
-                px-4
-                py-3
-                rounded-xl
-                text-center
-                font-bold
-              "
+              className="block mt-3 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl text-center font-bold"
             >
               WhatsApp
             </a>
 
           </div>
-
         </div>
-
       )}
-
     </header>
   );
 }

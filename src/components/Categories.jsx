@@ -1,61 +1,51 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-import {
-  Refrigerator,
-  Snowflake,
-  CookingPot,
-  Flame,
-  Wrench,
-  Smartphone,
-  Home,
-  Armchair,
-} from "lucide-react";
-
 function Categories() {
   const sectionRef = useRef(null);
+
   const [scrollProgress, setScrollProgress] = useState(0);
 
   const categories = [
     {
       nombre: "Heladeras",
-      icono: Refrigerator,
+      imagen: "/imgHugella/categorias/heladeras.png",
       ruta: "/productos?categoria=Heladeras",
     },
     {
       nombre: "Freezers",
-      icono: Snowflake,
+      imagen: "/imgHugella/categorias/freezers.png",
       ruta: "/productos?categoria=Freezers",
     },
     {
       nombre: "Cocinas",
-      icono: CookingPot,
+      imagen: "/imgHugella/categorias/cocinas.png",
       ruta: "/productos?categoria=Cocinas",
     },
     {
       nombre: "Calefacción",
-      icono: Flame,
+      imagen: "/imgHugella/categorias/calefaccion.png",
       ruta: "/productos?grupo=calefaccion",
     },
     {
       nombre: "Herramientas",
-      icono: Wrench,
+      imagen: "/imgHugella/categorias/herramientas.png",
       ruta: "/productos?grupo=herramientas",
     },
     {
       nombre: "Celulares",
-      icono: Smartphone,
+      imagen: "/imgHugella/categorias/celulares.png",
       ruta: "/productos?categoria=Celulares",
     },
     {
       nombre: "Electrodomésticos",
-      icono: Home,
+      imagen: "/imgHugella/categorias/electrodomesticos.png",
       ruta: "/productos?categoria=Electrodomésticos",
     },
     {
-      nombre: "Muebles",
-      icono: Armchair,
-      ruta: "/productos?categoria=Muebles",
+      nombre: "Movilidad",
+      imagen: "/imgHugella/categorias/movilidad.png",
+      ruta: "/productos?grupo=movilidad",
     },
   ];
 
@@ -106,7 +96,6 @@ function Categories() {
       ref={sectionRef}
       className="relative overflow-hidden"
     >
-
       {/* ========================= */}
       {/* FONDO PARALLAX */}
       {/* ========================= */}
@@ -114,13 +103,11 @@ function Categories() {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          transform: `translateY(${
-            (0.5 - scrollProgress) * 100
-          }px)`,
+          transform: `translateY(${(0.5 - scrollProgress) * 100
+            }px)`,
           transition: "transform 0.08s linear",
         }}
       >
-
         <div
           className="
             absolute
@@ -159,9 +146,7 @@ function Categories() {
             blur-3xl
           "
         />
-
       </div>
-
 
       {/* ========================= */}
       {/* CONTENIDO */}
@@ -176,9 +161,8 @@ function Categories() {
         <div
           className="mb-12"
           style={{
-            transform: `translateY(${
-              (0.5 - scrollProgress) * 35
-            }px)`,
+            transform: `translateY(${(0.5 - scrollProgress) * 35
+              }px)`,
 
             opacity: Math.min(
               1,
@@ -189,7 +173,6 @@ function Categories() {
               "transform 0.12s linear, opacity 0.15s linear",
           }}
         >
-
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-800">
             Categorías
           </h2>
@@ -197,9 +180,7 @@ function Categories() {
           <p className="text-gray-500 mt-3 text-lg">
             Encontrá rápidamente lo que necesitás.
           </p>
-
         </div>
-
 
         {/* ========================= */}
         {/* CATEGORÍAS */}
@@ -208,8 +189,6 @@ function Categories() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
 
           {categories.map((categoria, index) => {
-            const Icono = categoria.icono;
-
             const velocidades = [
               80,
               55,
@@ -242,22 +221,18 @@ function Categories() {
                 key={categoria.nombre}
                 to={categoria.ruta}
                 className="
+                  group
+                  relative
+                  block
+                  overflow-hidden
                   bg-white
-                  rounded-2xl
                   shadow-md
                   hover:shadow-2xl
-                  hover:-translate-y-3
                   transition-shadow
                   duration-300
                   cursor-pointer
-                  p-4
-                  sm:p-8
-                  flex
-                  flex-col
-                  items-center
-                  justify-center
-                  min-h-[190px]
-                  block
+                  aspect-[4/3]
+                  sm:aspect-[4/3]
                 "
                 style={{
                   transform: `
@@ -272,51 +247,75 @@ function Categories() {
                 }}
               >
 
-                {/* ICONO */}
+                {/* ========================= */}
+                {/* IMAGEN */}
+                {/* ========================= */}
+
+                <img
+                  src={categoria.imagen}
+                  alt={categoria.nombre}
+                  className="
+                    absolute
+                    inset-0
+                    w-full
+                    h-full
+                    object-cover
+                    transition-transform
+                    duration-700
+                    group-hover:scale-105
+                  "
+                />
+
+                {/* ========================= */}
+                {/* DEGRADADO */}
+                {/* ========================= */}
 
                 <div
                   className="
-                    w-16
-                    h-16
-                    rounded-full
-                    bg-blue-50
-                    flex
-                    items-center
-                    justify-center
-                    mb-5
-                    transition-all
-                    duration-500
+                    absolute
+                    inset-0
+                    bg-gradient-to-t
+                    from-black/75
+                    via-black/15
+                    to-transparent
+                  "
+                />
+
+                {/* ========================= */}
+                {/* NOMBRE */}
+                {/* ========================= */}
+
+                <div
+                  className="
+                    absolute
+                    bottom-0
+                    left-0
+                    right-0
+                    p-4
+                    sm:p-6
                   "
                 >
-
-                  <Icono
-                    size={32}
-                    strokeWidth={1.8}
+                  <h3
                     className="
-                      text-blue-600
-                      transition-transform
-                      duration-500
+                      text-white
+                      font-bold
+                      text-lg
+                      sm:text-2xl
+                      text-center
+                      leading-tight
+                      drop-shadow-md
                     "
-                  />
-
+                  >
+                    {categoria.nombre}
+                  </h3>
                 </div>
-
-
-                {/* NOMBRE */}
-
-                
-                <h3 className="font-semibold text-base sm:text-lg text-center text-gray-800 break-words leading-tight w-full">
-                  {categoria.nombre}
-                </h3>
 
               </Link>
             );
           })}
 
         </div>
-
       </div>
-
     </section>
   );
 }

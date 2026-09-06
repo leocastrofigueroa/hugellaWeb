@@ -1,70 +1,46 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import productsPromise from "../data/products.js";
-import CategoryFilter from "../components/CategoryFilter";
 import ProductCard from "../components/ProductCard";
 import ParallaxSection from "../components/ParallaxSection";
 
 function Products() {
-
   const [products, setProducts] = useState([]);
 
-  const [categoria, setCategoria] =
-    useState("Todas");
+  const [categoria, setCategoria] = useState("Todas");
+  const [precioMaximo, setPrecioMaximo] = useState(0);
+  const [marca, setMarca] = useState("Todas");
+  const [orden, setOrden] = useState("nombre-az");
+  const [soloOfertas, setSoloOfertas] = useState(false);
 
-  const [precioMaximo, setPrecioMaximo] =
-    useState(0);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
 
-  const [marca, setMarca] =
-    useState("Todas");
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [orden, setOrden] =
-    useState("predeterminado");
+  /* ==========================================
+     PARÁMETROS DE URL
+  ========================================== */
 
-  const [cargando, setCargando] =
-    useState(true);
+  const busquedaURL = searchParams.get("busqueda") || "";
+  const marcaURL = searchParams.get("marca") || "";
+  const categoriaURL = searchParams.get("categoria") || "";
+  const grupoURL = searchParams.get("grupo") || "";
 
-  const [error, setError] =
-    useState("");
+  const [busqueda, setBusqueda] = useState(busquedaURL);
 
-  const [searchParams] =
-    useSearchParams();
-
-
-  /* ================================= */
-  /* PARÁMETROS DE URL */
-  /* ================================= */
-
-  const busqueda =
-    searchParams.get("busqueda") || "";
-
-  const marcaURL =
-    searchParams.get("marca") || "";
-
-  const categoriaURL =
-    searchParams.get("categoria") || "";
-
-  const grupoURL =
-    searchParams.get("grupo") || "";
-
-
-  /* ================================= */
-  /* CARGAR PRODUCTOS */
-  /* ================================= */
+  /* ==========================================
+     CARGAR PRODUCTOS
+  ========================================== */
 
   useEffect(() => {
-
     productsPromise
       .then((datos) => {
-
         setProducts(datos);
-
         setCargando(false);
-
       })
       .catch((error) => {
-
         console.error(error);
 
         setError(
@@ -72,205 +48,138 @@ function Products() {
         );
 
         setCargando(false);
-
       });
-
   }, []);
 
-
-  /* ================================= */
-  /* APLICAR MARCA DESDE URL */
-  /* ================================= */
+  /* ==========================================
+     SINCRONIZAR URL
+  ========================================== */
 
   useEffect(() => {
+    setBusqueda(busquedaURL);
+  }, [busquedaURL]);
 
+  useEffect(() => {
     if (marcaURL) {
-
       setMarca(marcaURL);
-
     } else {
-
       setMarca("Todas");
-
     }
-
   }, [marcaURL]);
 
-
-  /* ================================= */
-  /* APLICAR CATEGORÍA DESDE URL */
-  /* ================================= */
-
   useEffect(() => {
-
     if (categoriaURL) {
-
       setCategoria(categoriaURL);
-
     } else {
-
       setCategoria("Todas");
-
     }
-
   }, [categoriaURL]);
 
+  /* ==========================================
+     CATEGORÍAS
+  ========================================== */
 
-  /* ================================= */
-  /* CARGANDO */
-  /* ================================= */
+  const categorias = useMemo(() => {
+    return [
+      "Todas",
+      ...new Set(
+        products
+          .map((producto) => producto.categoria)
+          .filter(Boolean)
+          .map((categoria) => categoria.trim())
+      ),
+    ];
+  }, [products]);
 
-  if (cargando) {
+  /* ==========================================
+     MARCAS
+  ========================================== */
 
-    return (
-      <main className="min-h-screen bg-[#f5f6f8]">
+  const marcas = useMemo(() => {
+    return [
+      ...new Set(
+        products
+          .map((producto) => producto.marca)
+          .filter(Boolean)
+          .map((marca) => marca.trim())
+          .filter((marca) => marca !== "")
+      ),
+    ].sort((a, b) => a.localeCompare(b));
+  }, [products]);
 
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+  /* ==========================================
+     PRECIOS
+  ========================================== */
 
-          <div className="animate-pulse">
+  const precios = useMemo(() => {
+    const valores = products
+      .map((producto) => Number(producto.precio))
+      .filter((precio) => precio > 0);
 
-            <div className="h-4 w-32 bg-gray-200 rounded mb-4" />
+    if (!valores.length) {
+      return [];
+    }
 
-            <div className="h-12 w-80 max-w-full bg-gray-200 rounded mb-5" />
+    const maximo = Math.max(...valores);
 
-            <div className="h-5 w-96 max-w-full bg-gray-200 rounded" />
+    const opciones = [
+      1000,
+      2500,
+      5000,
+      10000,
+      20000,
+      50000,
+      100000,
+      250000,
+      500000,
+      1000000,
+    ];
 
-          </div>
-
-        </section>
-
-      </main>
+    return opciones.filter(
+      (precio) => precio < maximo
     );
-  }
+  }, [products]);
 
-
-  /* ================================= */
-  /* ERROR */
-  /* ================================= */
-
-  if (error) {
-
-    return (
-      <main className="min-h-screen bg-[#f5f6f8]">
-
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-
-          <div className="bg-white rounded-3xl shadow-md p-8 text-center">
-
-            <p className="text-red-600 font-semibold">
-              {error}
-            </p>
-
-          </div>
-
-        </section>
-
-      </main>
-    );
-  }
-
-
-  /* ================================= */
-  /* CATEGORÍAS DISPONIBLES */
-  /* ================================= */
-
-  const categorias = [
-    "Todas",
-
-    ...new Set(
-      products
-        .map(
-          (producto) =>
-            producto.categoria
-        )
-        .filter(Boolean)
-    ),
-  ];
-
-
-  /* ================================= */
-  /* MARCAS DISPONIBLES */
-  /* ================================= */
-
-  const marcas = [
-    ...new Set(
-      products
-        .map(
-          (producto) =>
-            producto.marca
-        )
-        .filter(Boolean)
-        .map((marca) =>
-          marca.trim()
-        )
-        .filter(
-          (marca) =>
-            marca !== ""
-        )
-    ),
-  ].sort((a, b) =>
-    a.localeCompare(b)
-  );
-
-
-  /* ================================= */
-  /* TEXTO DE BÚSQUEDA */
-  /* ================================= */
+  /* ==========================================
+     TEXTO DE BÚSQUEDA
+  ========================================== */
 
   const textoBusqueda =
-    busqueda
-      .toLowerCase()
-      .trim();
+    busqueda.toLowerCase().trim();
 
+  /* ==========================================
+     FILTRAR PRODUCTOS
+  ========================================== */
 
-  /* ================================= */
-  /* FILTRAR PRODUCTOS */
-  /* ================================= */
-
-  let productosFiltrados =
-    products.filter((producto) => {
-
+  let productosFiltrados = products.filter(
+    (producto) => {
       const categoriaProducto =
         producto.categoria
           ?.toLowerCase()
           .trim() || "";
-
 
       const marcaProducto =
         producto.marca
           ?.toLowerCase()
           .trim() || "";
 
-
-      /* ============================= */
-      /* CATEGORÍA */
-      /* ============================= */
+      /* ==============================
+         CATEGORÍA
+      ============================== */
 
       let coincideCategoria = true;
 
-
-      if (
-        categoria !== "Todas"
-      ) {
-
+      if (categoria !== "Todas") {
         coincideCategoria =
           categoriaProducto ===
-          categoria
-            .toLowerCase()
-            .trim();
-
+          categoria.toLowerCase().trim();
       }
 
+      /* ==============================
+         GRUPOS
+      ============================== */
 
-      /* ============================= */
-      /* GRUPOS ESPECIALES */
-      /* ============================= */
-
-      if (
-        grupoURL ===
-        "calefaccion"
-      ) {
-
+      if (grupoURL === "calefaccion") {
         const categoriasCalefaccion = [
           "estufas",
           "calefactores",
@@ -282,218 +191,427 @@ function Products() {
           categoriasCalefaccion.includes(
             categoriaProducto
           );
-
       }
 
-
-      if (
-        grupoURL ===
-        "herramientas"
-      ) {
-
+      if (grupoURL === "herramientas") {
         coincideCategoria =
-          categoriaProducto ===
-            "herramientas" ||
-          categoriaProducto ===
-            "atornilladores" ||
-          categoriaProducto ===
-            "cortadoras";
-
+          categoriaProducto === "herramientas" ||
+          categoriaProducto === "atornilladores" ||
+          categoriaProducto === "cortadoras";
       }
 
-
-      /* ============================= */
-      /* PRECIO */
-      /* ============================= */
+      /* ==============================
+         PRECIO
+      ============================== */
 
       const coincidePrecio =
         precioMaximo === 0 ||
-        producto.precio <=
-          precioMaximo;
+        Number(producto.precio) <= precioMaximo;
 
-
-      /* ============================= */
-      /* MARCA */
-      /* ============================= */
+      /* ==============================
+         MARCA
+      ============================== */
 
       const coincideMarca =
         marca === "Todas" ||
         marcaProducto ===
-          marca
-            .toLowerCase()
-            .trim();
+          marca.toLowerCase().trim();
 
-
-      /* ============================= */
-      /* BÚSQUEDA */
-      /* ============================= */
+      /* ==============================
+         BÚSQUEDA
+      ============================== */
 
       const coincideBusqueda =
         textoBusqueda === "" ||
-
         producto.nombre
           ?.toLowerCase()
-          .includes(
-            textoBusqueda
-          ) ||
-
+          .includes(textoBusqueda) ||
         producto.marca
           ?.toLowerCase()
-          .includes(
-            textoBusqueda
-          ) ||
-
+          .includes(textoBusqueda) ||
         producto.categoria
           ?.toLowerCase()
-          .includes(
-            textoBusqueda
-          );
+          .includes(textoBusqueda);
 
+      /* ==============================
+         OFERTAS
+      ============================== */
+
+      const coincideOferta =
+        !soloOfertas || producto.oferta === true;
 
       return (
         coincideCategoria &&
         coincidePrecio &&
         coincideMarca &&
-        coincideBusqueda
+        coincideBusqueda &&
+        coincideOferta
       );
+    }
+  );
 
-    });
+  /* ==========================================
+     ORDENAR
+  ========================================== */
 
-
-  /* ================================= */
-  /* ORDENAR */
-  /* ================================= */
-
-  productosFiltrados =
-    [...productosFiltrados];
-
+  productosFiltrados = [...productosFiltrados];
 
   switch (orden) {
-
     case "precio-menor":
-
       productosFiltrados.sort(
         (a, b) =>
-          a.precio -
-          b.precio
+          Number(a.precio) - Number(b.precio)
       );
-
       break;
-
 
     case "precio-mayor":
-
       productosFiltrados.sort(
         (a, b) =>
-          b.precio -
-          a.precio
+          Number(b.precio) - Number(a.precio)
       );
-
       break;
-
 
     case "nombre-az":
-
-      productosFiltrados.sort(
-        (a, b) =>
-          a.nombre.localeCompare(
-            b.nombre
-          )
+      productosFiltrados.sort((a, b) =>
+        a.nombre.localeCompare(b.nombre)
       );
-
       break;
-
 
     case "nombre-za":
-
-      productosFiltrados.sort(
-        (a, b) =>
-          b.nombre.localeCompare(
-            a.nombre
-          )
+      productosFiltrados.sort((a, b) =>
+        b.nombre.localeCompare(a.nombre)
       );
-
       break;
 
-
     default:
-
       break;
   }
 
+  /* ==========================================
+     FUNCIONES DE FILTROS
+  ========================================== */
 
-  /* ================================= */
-  /* RENDER */
-  /* ================================= */
+  const cambiarCategoria = (valor) => {
+    setCategoria(valor);
+
+    const nuevosParams = new URLSearchParams(
+      searchParams
+    );
+
+    if (valor === "Todas") {
+      nuevosParams.delete("categoria");
+    } else {
+      nuevosParams.set("categoria", valor);
+    }
+
+    setSearchParams(nuevosParams);
+  };
+
+  const cambiarMarca = (valor) => {
+    setMarca(valor);
+
+    const nuevosParams = new URLSearchParams(
+      searchParams
+    );
+
+    if (valor === "Todas") {
+      nuevosParams.delete("marca");
+    } else {
+      nuevosParams.set("marca", valor);
+    }
+
+    setSearchParams(nuevosParams);
+  };
+
+  const cambiarBusqueda = (valor) => {
+    setBusqueda(valor);
+
+    const nuevosParams = new URLSearchParams(
+      searchParams
+    );
+
+    if (valor.trim() === "") {
+      nuevosParams.delete("busqueda");
+    } else {
+      nuevosParams.set(
+        "busqueda",
+        valor
+      );
+    }
+
+    setSearchParams(nuevosParams);
+  };
+
+  const limpiarFiltros = () => {
+    setCategoria("Todas");
+    setMarca("Todas");
+    setPrecioMaximo(0);
+    setOrden("nombre-az");
+    setSoloOfertas(false);
+    setBusqueda("");
+
+    setSearchParams({});
+  };
+
+  /* ==========================================
+     CARGANDO
+  ========================================== */
+
+  if (cargando) {
+    return (
+      <main className="min-h-screen bg-[#f5f6f8]">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="animate-pulse space-y-5">
+            <div className="h-5 w-40 bg-gray-200 rounded" />
+            <div className="h-12 w-96 max-w-full bg-gray-200 rounded" />
+            <div className="h-6 w-[500px] max-w-full bg-gray-200 rounded" />
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  /* ==========================================
+     ERROR
+  ========================================== */
+
+  if (error) {
+    return (
+      <main className="min-h-screen bg-[#f5f6f8]">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="bg-white rounded-3xl shadow-md p-10 text-center">
+            <p className="text-red-600 font-semibold">
+              {error}
+            </p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  /* ==========================================
+     RENDER
+  ========================================== */
 
   return (
-    <main className="min-h-screen bg-[#f5f6f8] overflow-hidden">
+    <main className="min-h-screen bg-[#f5f6f8]">
 
-
-      {/* ================================= */}
-      {/* CABECERA */}
-      {/* ================================= */}
+      {/* ======================================
+          CABECERA
+      ====================================== */}
 
       <ParallaxSection
         speed={0.05}
         className="relative z-10"
       >
-
         <section className="relative bg-white overflow-hidden">
 
           <div className="absolute top-0 right-0 w-[420px] h-[420px] bg-blue-100/40 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3 pointer-events-none" />
 
           <div className="absolute bottom-0 left-0 w-[280px] h-[280px] bg-blue-50 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3 pointer-events-none" />
 
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+            <p className="text-[#315b91] text-sm sm:text-base font-extrabold uppercase tracking-[0.2em]">
+              Catálogo HUGELLA
+            </p>
 
-            <div className="max-w-4xl">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mt-3 leading-tight text-gray-900">
+              {marcaURL
+                ? `Productos ${marcaURL}`
+                : grupoURL === "calefaccion"
+                ? "Calefacción"
+                : grupoURL === "herramientas"
+                ? "Herramientas"
+                : "Nuestros productos"}
+            </h1>
 
-              <p className="text-[#315b91] text-sm sm:text-base font-extrabold uppercase tracking-[0.2em]">
-                Catálogo HUGELLA
-              </p>
+            <p className="text-gray-500 text-lg sm:text-xl mt-5 max-w-2xl leading-relaxed">
+              {marcaURL
+                ? `Todos los productos ${marcaURL} disponibles en HUGELLA.`
+                : grupoURL === "calefaccion"
+                ? "Encontrá estufas, calefactores, caloventores y calefones."
+                : grupoURL === "herramientas"
+                ? "Encontrá herramientas para tu trabajo y tu hogar."
+                : "Encontrá el equipamiento que necesitás para tu negocio y tu hogar."}
+            </p>
 
+          </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mt-3 leading-tight text-gray-900">
+        </section>
+      </ParallaxSection>
 
-                {marcaURL
-                  ? `Productos ${marcaURL}`
-                  : grupoURL ===
-                    "calefaccion"
-                  ? "Calefacción"
-                  : grupoURL ===
-                    "herramientas"
-                  ? "Herramientas"
-                  : "Nuestros productos"}
+      {/* ======================================
+          CONTENIDO
+      ====================================== */}
 
-              </h1>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
 
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
 
-              <p className="text-gray-500 text-lg sm:text-xl mt-5 max-w-2xl leading-relaxed">
+          {/* ==================================
+              SIDEBAR FILTROS
+          ================================== */}
 
-                {marcaURL
-                  ? `Todos los productos ${marcaURL} disponibles en HUGELLA.`
-                  : grupoURL ===
-                    "calefaccion"
-                  ? "Encontrá estufas, calefactores, caloventores y calefones."
-                  : grupoURL ===
-                    "herramientas"
-                  ? "Encontrá herramientas para tu trabajo y tu hogar."
-                  : "Encontrá el equipamiento que necesitás para tu negocio y tu hogar."}
+          <aside className="lg:sticky lg:top-24 h-fit">
 
-              </p>
+            <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
 
+              <div className="px-6 py-5 border-b border-gray-200">
+                <h2 className="text-2xl font-extrabold text-gray-900">
+                  Filtros
+                </h2>
+              </div>
 
-              {busqueda && (
+              {/* OFERTAS */}
 
-                <div className="inline-flex items-center mt-7 bg-[#315b91]/10 text-[#315b91] px-5 py-3 rounded-xl font-semibold">
+              <div className="px-6 py-5 border-b border-gray-200">
 
-                  Resultados para:
+                <div className="flex items-center justify-between gap-4">
 
-                  <span className="ml-2 font-extrabold">
-                    "{busqueda}"
+                  <span className="font-bold text-gray-800">
+                    Solo ofertas
                   </span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSoloOfertas(!soloOfertas)
+                    }
+                    className={`relative w-14 h-8 rounded-full transition ${
+                      soloOfertas
+                        ? "bg-[#315b91]"
+                        : "bg-gray-300"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition ${
+                        soloOfertas
+                          ? "left-7"
+                          : "left-1"
+                      }`}
+                    />
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* CATEGORÍA */}
+
+              <div className="px-6 py-5 border-b border-gray-200">
+
+                <label className="block font-bold text-gray-800 mb-3">
+                  Categoría
+                </label>
+
+                <select
+                  value={categoria}
+                  onChange={(e) =>
+                    cambiarCategoria(e.target.value)
+                  }
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700 font-medium outline-none focus:border-[#315b91]"
+                >
+                  {categorias.map((cat) => (
+                    <option
+                      key={cat}
+                      value={cat}
+                    >
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+
+              </div>
+
+              {/* MARCA */}
+
+              <div className="px-6 py-5 border-b border-gray-200">
+
+                <label className="block font-bold text-gray-800 mb-3">
+                  Marca
+                </label>
+
+                <select
+                  value={marca}
+                  onChange={(e) =>
+                    cambiarMarca(e.target.value)
+                  }
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700 font-medium outline-none focus:border-[#315b91]"
+                >
+
+                  <option value="Todas">
+                    Todas
+                  </option>
+
+                  {marcas.map((marcaItem) => (
+                    <option
+                      key={marcaItem}
+                      value={marcaItem}
+                    >
+                      {marcaItem}
+                    </option>
+                  ))}
+
+                </select>
+
+              </div>
+
+              {/* PRECIO */}
+
+              <div className="px-6 py-5">
+
+                <label className="block font-bold text-gray-800 mb-3">
+                  Rango de precio
+                </label>
+
+                <select
+                  value={precioMaximo}
+                  onChange={(e) =>
+                    setPrecioMaximo(
+                      Number(e.target.value)
+                    )
+                  }
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700 font-medium outline-none focus:border-[#315b91]"
+                >
+
+                  <option value={0}>
+                    Cualquier precio
+                  </option>
+
+                  {precios.map((precio) => (
+                    <option
+                      key={precio}
+                      value={precio}
+                    >
+                      Hasta $
+                      {precio.toLocaleString(
+                        "es-AR"
+                      )}
+                    </option>
+                  ))}
+
+                </select>
+
+              </div>
+
+              {/* LIMPIAR */}
+
+              {(categoria !== "Todas" ||
+                marca !== "Todas" ||
+                precioMaximo !== 0 ||
+                soloOfertas ||
+                busqueda) && (
+
+                <div className="px-6 pb-6">
+
+                  <button
+                    type="button"
+                    onClick={limpiarFiltros}
+                    className="w-full border border-[#315b91] text-[#315b91] hover:bg-[#315b91] hover:text-white px-4 py-3 rounded-xl font-bold transition"
+                  >
+                    Limpiar filtros
+                  </button>
 
                 </div>
 
@@ -501,184 +619,165 @@ function Products() {
 
             </div>
 
-          </div>
+          </aside>
 
-        </section>
+          {/* ==================================
+              PRODUCTOS
+          ================================== */}
 
-      </ParallaxSection>
+          <div className="min-w-0">
 
+            {/* CABECERA RESULTADOS */}
 
-      {/* ================================= */}
-      {/* FILTROS */}
-      {/* ================================= */}
+            <div className="flex flex-col gap-5 mb-6">
 
-      <ParallaxSection
-        speed={0.09}
-        className="relative z-[100]"
-      >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10">
+                <div>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+                    {productosFiltrados.length}{" "}
+                    {productosFiltrados.length === 1
+                      ? "producto"
+                      : "productos"}
+                  </h2>
 
-            <CategoryFilter
+                  <p className="text-gray-500 mt-1">
+                    Encontrá lo que necesitás
+                  </p>
 
-              categorias={categorias}
+                </div>
 
-              categoria={categoria}
+                {/* ORDEN */}
 
-              setCategoria={setCategoria}
+                <div className="flex items-center gap-3">
 
-              precioMaximo={precioMaximo}
+                  <span className="text-sm font-semibold text-gray-500">
+                    Ordenar por
+                  </span>
 
-              setPrecioMaximo={setPrecioMaximo}
+                  <select
+                    value={orden}
+                    onChange={(e) =>
+                      setOrden(e.target.value)
+                    }
+                    className="bg-white border border-gray-200 rounded-xl px-4 py-3 font-semibold text-gray-700 outline-none focus:border-[#315b91]"
+                  >
 
-              marcas={marcas}
+                    <option value="nombre-az">
+                      Nombre A-Z
+                    </option>
 
-              marca={marca}
+                    <option value="nombre-za">
+                      Nombre Z-A
+                    </option>
 
-              setMarca={setMarca}
+                    <option value="precio-menor">
+                      Precio menor
+                    </option>
 
-              orden={orden}
+                    <option value="precio-mayor">
+                      Precio mayor
+                    </option>
 
-              setOrden={setOrden}
+                  </select>
 
-            />
-
-          </div>
-
-        </section>
-
-      </ParallaxSection>
-
-
-      {/* ================================= */}
-      {/* RESULTADOS */}
-      {/* ================================= */}
-
-      <ParallaxSection
-        speed={0.13}
-        className="relative z-10"
-      >
-
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mt-8 sm:mt-10 mb-5">
-
-            <div>
-
-              <p className="text-gray-500 text-sm sm:text-base">
-
-                {productosFiltrados.length > 0
-                  ? "Productos encontrados"
-                  : "No encontramos productos"}
-
-              </p>
-
-            </div>
-
-
-            <div className="inline-flex items-center self-start sm:self-auto bg-white border border-gray-200 rounded-full px-4 py-2">
-
-              <span className="text-sm font-bold text-gray-700">
-
-                {productosFiltrados.length}
-
-              </span>
-
-              <span className="text-sm text-gray-500 ml-1">
-
-                {productosFiltrados.length === 1
-                  ? "producto"
-                  : "productos"}
-
-              </span>
-
-            </div>
-
-          </div>
-
-        </section>
-
-      </ParallaxSection>
-
-
-      {/* ================================= */}
-      {/* PRODUCTOS */}
-      {/* ================================= */}
-
-      <ParallaxSection
-        speed={0.17}
-        className="relative z-0"
-      >
-
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-24">
-
-          {productosFiltrados.length > 0 ? (
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-
-              {productosFiltrados.map(
-                (producto) => (
-
-                  <ProductCard
-                    key={producto.id}
-                    producto={producto}
-                  />
-
-                )
-              )}
-
-            </div>
-
-          ) : (
-
-            <div className="bg-white rounded-3xl shadow-md p-10 sm:p-16 text-center">
-
-              <div className="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center">
-
-                <span className="text-2xl font-bold text-[#315b91]">
-                  ?
-                </span>
+                </div>
 
               </div>
 
+              {/* BUSCADOR */}
 
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-700 mt-6">
-                No encontramos productos
-              </h2>
+              <div className="relative">
 
+                <svg
+                  className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="m21 21-4.35-4.35m1.35-5.4a6.75 6.75 0 1 1-13.5 0 6.75 6.75 0 0 1 13.5 0Z"
+                  />
+                </svg>
 
-              <p className="text-gray-500 mt-2 max-w-md mx-auto">
-                Probá con otro nombre, marca o categoría.
-              </p>
+                <input
+                  type="text"
+                  value={busqueda}
+                  onChange={(e) =>
+                    cambiarBusqueda(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Buscar producto, marca o categoría..."
+                  className="w-full h-16 bg-white border border-gray-200 rounded-2xl pl-14 pr-5 text-gray-800 placeholder-gray-400 outline-none focus:border-[#315b91] focus:ring-2 focus:ring-[#315b91]/10 transition"
+                />
 
-
-              <button
-                type="button"
-                onClick={() => {
-
-                  setCategoria("Todas");
-
-                  setPrecioMaximo(0);
-
-                  setMarca("Todas");
-
-                  setOrden("predeterminado");
-
-                }}
-                className="mt-6 bg-[#315b91] hover:bg-[#264a78] text-white px-6 py-3 rounded-xl font-bold transition"
-              >
-                Limpiar filtros
-              </button>
+              </div>
 
             </div>
 
-          )}
+            {/* =================================
+                GRILLA
+            ================================= */}
 
-        </section>
+            {productosFiltrados.length > 0 ? (
 
-      </ParallaxSection>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
+
+                {productosFiltrados.map(
+                  (producto) => (
+
+                    <ProductCard
+                      key={producto.id}
+                      producto={producto}
+                    />
+
+                  )
+                )}
+
+              </div>
+
+            ) : (
+
+              <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-10 sm:p-16 text-center">
+
+                <div className="w-16 h-16 mx-auto rounded-full bg-[#315b91]/10 flex items-center justify-center">
+
+                  <span className="text-2xl font-bold text-[#315b91]">
+                    ?
+                  </span>
+
+                </div>
+
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-700 mt-6">
+                  No encontramos productos
+                </h2>
+
+                <p className="text-gray-500 mt-2 max-w-md mx-auto">
+                  Probá con otro nombre, marca o categoría.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={limpiarFiltros}
+                  className="mt-6 bg-[#315b91] hover:bg-[#264a78] text-white px-6 py-3 rounded-xl font-bold transition"
+                >
+                  Limpiar filtros
+                </button>
+
+              </div>
+
+            )}
+
+          </div>
+
+        </div>
+
+      </section>
 
     </main>
   );
