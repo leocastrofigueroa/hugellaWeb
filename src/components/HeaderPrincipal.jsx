@@ -18,11 +18,15 @@ function Header() {
       setScrolled(window.scrollY > 40);
     };
 
-    window.addEventListener("scroll", manejarScroll, { passive: true });
+    window.addEventListener("scroll", manejarScroll, {
+      passive: true,
+    });
+
     manejarScroll();
 
-    return () =>
+    return () => {
       window.removeEventListener("scroll", manejarScroll);
+    };
   }, []);
 
   // Cerrar Categorías al hacer clic fuera
@@ -39,7 +43,10 @@ function Header() {
     document.addEventListener("mousedown", manejarClickFuera);
 
     return () => {
-      document.removeEventListener("mousedown", manejarClickFuera);
+      document.removeEventListener(
+        "mousedown",
+        manejarClickFuera
+      );
     };
   }, []);
 
@@ -105,10 +112,9 @@ function Header() {
   ];
 
   const claseNav = ({ isActive }) =>
-    `font-semibold transition-colors duration-300 cursor-pointer ${
-      isActive
-        ? "text-white"
-        : "text-white/85 hover:text-white"
+    `font-semibold transition-colors duration-300 cursor-pointer ${isActive
+      ? "text-white"
+      : "text-white/85 hover:text-white"
     }`;
 
   return (
@@ -138,9 +144,14 @@ function Header() {
             className="shrink-0 flex items-center relative z-50"
           >
             <img
-              src="/imgHugella/logo.png"
-              alt="Hugella Equipamiento Comercial"
-              className="w-56 sm:w-64 lg:w-72 object-contain"
+              src="/imgHugella/logo-hugella.png"
+              alt="HUGELLA Equipamiento Comercial"
+              className="
+                w-56
+                sm:w-64
+                lg:w-72
+                object-contain
+              "
             />
           </Link>
 
@@ -160,13 +171,32 @@ function Header() {
                 placeholder="¿Qué estás buscando?"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="w-full h-12 rounded-l-xl bg-white text-gray-800 placeholder:text-gray-400 pl-12 pr-5 outline-none"
+                className="
+                  w-full
+                  h-12
+                  rounded-l-xl
+                  bg-white
+                  text-gray-800
+                  placeholder:text-gray-400
+                  pl-12
+                  pr-5
+                  outline-none
+                "
               />
             </div>
 
             <button
               type="submit"
-              className="h-12 bg-[#0B2A4A] hover:bg-[#08213A] text-white px-7 rounded-r-xl transition font-bold"
+              className="
+                h-12
+                bg-[#0B2A4A]
+                hover:bg-[#08213A]
+                text-white
+                px-7
+                rounded-r-xl
+                transition
+                font-bold
+              "
             >
               Buscar
             </button>
@@ -177,7 +207,23 @@ function Header() {
             href="https://wa.me/5492614685967"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:flex relative z-50 items-center justify-center h-11 bg-green-600 hover:bg-green-700 text-white px-5 rounded-xl font-bold transition shrink-0"
+            className="
+              hidden
+              sm:flex
+              relative
+              z-50
+              items-center
+              justify-center
+              h-11
+              bg-green-600
+              hover:bg-green-700
+              text-white
+              px-5
+              rounded-xl
+              font-bold
+              transition
+              shrink-0
+            "
           >
             WhatsApp
           </a>
@@ -186,10 +232,28 @@ function Header() {
           <button
             type="button"
             onClick={() => setMenuAbierto(!menuAbierto)}
-            className="sm:hidden ml-auto w-11 h-11 rounded-xl bg-white/10 border border-white/30 flex items-center justify-center relative z-50"
+            className="
+              sm:hidden
+              ml-auto
+              w-11
+              h-11
+              rounded-xl
+              bg-white/10
+              border
+              border-white/30
+              flex
+              items-center
+              justify-center
+              relative
+              z-50
+            "
             aria-label="Abrir menú"
           >
-            {menuAbierto ? <X size={25} /> : <Menu size={25} />}
+            {menuAbierto ? (
+              <X size={25} />
+            ) : (
+              <Menu size={25} />
+            )}
           </button>
         </div>
 
@@ -201,7 +265,13 @@ function Header() {
           <div className="relative flex-1">
             <Search
               size={19}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0B2A4A]"
+              className="
+                absolute
+                left-4
+                top-1/2
+                -translate-y-1/2
+                text-[#0B2A4A]
+              "
             />
 
             <input
@@ -209,13 +279,30 @@ function Header() {
               placeholder="¿Qué estás buscando?"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full h-12 rounded-l-xl bg-white text-gray-800 placeholder:text-gray-400 pl-11 pr-3 outline-none"
+              className="
+                w-full
+                h-12
+                rounded-l-xl
+                bg-white
+                text-gray-800
+                placeholder:text-gray-400
+                pl-11
+                pr-3
+                outline-none
+              "
             />
           </div>
 
           <button
             type="submit"
-            className="h-12 bg-[#0B2A4A] hover:bg-[#08213A] text-white px-4 rounded-r-xl"
+            className="
+              h-12
+              bg-[#0B2A4A]
+              hover:bg-[#08213A]
+              text-white
+              px-4
+              rounded-r-xl
+            "
           >
             <Search size={20} />
           </button>
@@ -253,10 +340,9 @@ function Header() {
                   transition-colors
                   duration-300
                   cursor-pointer
-                  ${
-                    categoriasAbiertas
-                      ? "text-white bg-[#0B2A4A]"
-                      : "text-white/85 hover:text-white"
+                  ${categoriasAbiertas
+                    ? "text-white bg-[#0B2A4A]"
+                    : "text-white/85 hover:text-white"
                   }
                 `}
               >
@@ -264,21 +350,39 @@ function Header() {
               </button>
 
               {categoriasAbiertas && (
-                <div className="absolute top-full left-0 w-72 bg-[#0B2A4A] shadow-2xl overflow-hidden z-[10000]">
-
+                <div
+                  className="
+                    absolute
+                    top-full
+                    left-0
+                    w-72
+                    bg-[#0B2A4A]
+                    shadow-2xl
+                    overflow-hidden
+                    z-[10000]
+                  "
+                >
                   <div className="py-2">
                     {categorias.map((categoria) => (
                       <button
                         key={categoria}
                         type="button"
                         onClick={() => irACategoria(categoria)}
-                        className="w-full text-left px-5 py-3 text-white font-semibold hover:bg-white/10 transition-colors"
+                        className="
+                          w-full
+                          text-left
+                          px-5
+                          py-3
+                          text-white
+                          font-semibold
+                          hover:bg-white/10
+                          transition-colors
+                        "
                       >
                         {categoria}
                       </button>
                     ))}
                   </div>
-
                 </div>
               )}
             </div>
@@ -329,10 +433,9 @@ function Header() {
               end
               onClick={irAlInicio}
               className={({ isActive }) =>
-                `block px-4 py-3 rounded-xl font-semibold ${
-                  isActive
-                    ? "bg-[#0B2A4A] text-white"
-                    : "text-white hover:bg-white/10"
+                `block px-4 py-3 rounded-xl font-semibold ${isActive
+                  ? "bg-[#0B2A4A] text-white"
+                  : "text-white hover:bg-white/10"
                 }`
               }
             >
@@ -354,10 +457,9 @@ function Header() {
                   rounded-xl
                   font-semibold
                   transition
-                  ${
-                    categoriasAbiertas
-                      ? "bg-[#0B2A4A] text-white"
-                      : "text-white hover:bg-white/10"
+                  ${categoriasAbiertas
+                    ? "bg-[#0B2A4A] text-white"
+                    : "text-white hover:bg-white/10"
                   }
                 `}
               >
@@ -366,18 +468,27 @@ function Header() {
 
               {categoriasAbiertas && (
                 <div className="mt-1 ml-3 space-y-1">
-
                   {categorias.map((categoria) => (
                     <button
                       key={categoria}
                       type="button"
                       onClick={() => irACategoria(categoria)}
-                      className="block w-full text-left px-4 py-2.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition"
+                      className="
+                        block
+                        w-full
+                        text-left
+                        px-4
+                        py-2.5
+                        rounded-lg
+                        text-white/80
+                        hover:text-white
+                        hover:bg-white/10
+                        transition
+                      "
                     >
                       {categoria}
                     </button>
                   ))}
-
                 </div>
               )}
             </div>
@@ -387,10 +498,9 @@ function Header() {
               end
               onClick={cerrarMenu}
               className={({ isActive }) =>
-                `block px-4 py-3 rounded-xl font-semibold ${
-                  isActive
-                    ? "bg-[#0B2A4A] text-white"
-                    : "text-white hover:bg-white/10"
+                `block px-4 py-3 rounded-xl font-semibold ${isActive
+                  ? "bg-[#0B2A4A] text-white"
+                  : "text-white hover:bg-white/10"
                 }`
               }
             >
@@ -402,10 +512,9 @@ function Header() {
               end
               onClick={cerrarMenu}
               className={({ isActive }) =>
-                `block px-4 py-3 rounded-xl font-semibold ${
-                  isActive
-                    ? "bg-[#0B2A4A] text-white"
-                    : "text-white hover:bg-white/10"
+                `block px-4 py-3 rounded-xl font-semibold ${isActive
+                  ? "bg-[#0B2A4A] text-white"
+                  : "text-white hover:bg-white/10"
                 }`
               }
             >
@@ -417,10 +526,9 @@ function Header() {
               end
               onClick={cerrarMenu}
               className={({ isActive }) =>
-                `block px-4 py-3 rounded-xl font-semibold ${
-                  isActive
-                    ? "bg-[#0B2A4A] text-white"
-                    : "text-white hover:bg-white/10"
+                `block px-4 py-3 rounded-xl font-semibold ${isActive
+                  ? "bg-[#0B2A4A] text-white"
+                  : "text-white hover:bg-white/10"
                 }`
               }
             >
@@ -432,10 +540,9 @@ function Header() {
               end
               onClick={cerrarMenu}
               className={({ isActive }) =>
-                `block px-4 py-3 rounded-xl font-semibold ${
-                  isActive
-                    ? "bg-[#0B2A4A] text-white"
-                    : "text-white hover:bg-white/10"
+                `block px-4 py-3 rounded-xl font-semibold ${isActive
+                  ? "bg-[#0B2A4A] text-white"
+                  : "text-white hover:bg-white/10"
                 }`
               }
             >
@@ -446,7 +553,18 @@ function Header() {
               href="https://wa.me/5492614685967"
               target="_blank"
               rel="noopener noreferrer"
-              className="block mt-3 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl text-center font-bold"
+              className="
+                block
+                mt-3
+                bg-green-600
+                hover:bg-green-700
+                text-white
+                px-4
+                py-3
+                rounded-xl
+                text-center
+                font-bold
+              "
             >
               WhatsApp
             </a>
