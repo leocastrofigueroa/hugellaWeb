@@ -93,6 +93,28 @@ function crearSlug(texto = "") {
         .replace(/^-+|-+$/g, "");
 }
 
+function buscarDuplicados(productos) {
+    const slugs = new Map();
+
+    productos.forEach((producto) => {
+        if (!producto.nombre) return;
+
+        const slug = crearSlug(producto.nombre);
+
+        if (!slug) return;
+
+        if (!slugs.has(slug)) {
+            slugs.set(slug, []);
+        }
+
+        slugs.get(slug).push(producto.nombre);
+    });
+
+    return [...slugs.entries()].filter(
+        ([, nombres]) => nombres.length > 1
+    );
+}
+
 async function generarSitemap() {
     try {
         console.log("Generando sitemap...");
@@ -107,6 +129,42 @@ async function generarSitemap() {
 
         const texto = await respuesta.text();
         const productos = convertirCSV(texto);
+
+        /*
+         * COMPROBACIÓN DE URLs DUPLICADAS
+         */
+
+        const duplicados = buscarDuplicados(productos);
+
+        if (duplicados.length > 0) {
+            console.log("");
+            console.warn(
+                "ATENCIÓN: se encontraron URLs de productos duplicadas:"
+            );
+
+            duplicados.forEach(([slug, nombres]) => {
+                console.warn("");
+                console.warn(`/productos/${slug}`);
+
+                nombres.forEach((nombre) => {
+                    console.warn(`  - ${nombre}`);
+                });
+            });
+
+            console.log("");
+            console.warn(
+                `Total de URLs duplicadas: ${duplicados.length}`
+            );
+            console.log("");
+        } else {
+            console.log(
+                "Comprobación de URLs: no hay duplicados."
+            );
+        }
+
+        /*
+         * GENERACIÓN DEL SITEMAP
+         */
 
         const urlsFijas = [
             "https://www.hugella.com.ar/",
