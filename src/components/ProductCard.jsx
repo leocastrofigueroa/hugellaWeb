@@ -1,14 +1,22 @@
 import { Link } from "react-router-dom";
-import { Heart, ArrowRight, MessageCircle } from "lucide-react";
+import {
+  Heart,
+  ArrowRight,
+  MessageCircle,
+} from "lucide-react";
+
+import { crearSlug } from "../utils/slug.js";
 
 function ProductCard({ producto }) {
   const precioOferta =
-    producto.precioOferta && producto.precioOferta > 0
+    producto.precioOferta &&
+      producto.precioOferta > 0
       ? producto.precioOferta
       : null;
 
   const tieneOferta =
-    producto.oferta === true && precioOferta !== null;
+    producto.oferta === true &&
+    precioOferta !== null;
 
   const precioMostrar = tieneOferta
     ? precioOferta
@@ -17,6 +25,11 @@ function ProductCard({ producto }) {
   const mensajeWhatsApp = encodeURIComponent(
     `Hola! Me interesa el producto: ${producto.nombre}`
   );
+
+  // URL amigable para Google
+  const slug = crearSlug(producto.nombre);
+
+  const urlProducto = `/productos/${slug}`;
 
   return (
     <article
@@ -35,18 +48,12 @@ function ProductCard({ producto }) {
         ease-out
       "
     >
-
-      {/* ================================= */}
       {/* IMAGEN */}
-      {/* ================================= */}
-
       <div className="relative bg-gradient-to-b from-gray-50 to-white p-4 sm:p-5">
 
         {/* OFERTA */}
-
         {producto.oferta && (
           <div className="absolute top-4 left-4 z-20">
-
             <span
               className="
                 inline-flex
@@ -66,13 +73,10 @@ function ProductCard({ producto }) {
             >
               Oferta
             </span>
-
           </div>
         )}
 
-
         {/* FAVORITOS */}
-
         <button
           type="button"
           aria-label="Agregar a favoritos"
@@ -103,11 +107,9 @@ function ProductCard({ producto }) {
           />
         </button>
 
-
-        {/* IMAGEN */}
-
+        {/* IMAGEN DEL PRODUCTO */}
         <Link
-          to={`/productos/${producto.id}`}
+          to={urlProducto}
           className="
             block
             relative
@@ -116,14 +118,11 @@ function ProductCard({ producto }) {
             rounded-2xl
           "
         >
-
           <div className="h-52 sm:h-56 md:h-60 flex items-center justify-center">
-
             <img
               src={
-                producto.carpeta
-                  ? `/imgHugella/productos/${producto.carpeta}/principal.png`
-                  : "/imgHugella/logo.png"
+                producto.imagenPrincipal ||
+                "/imgHugella/logo.png"
               }
               alt={producto.nombre}
               className="
@@ -141,56 +140,47 @@ function ProductCard({ producto }) {
                   "/imgHugella/logo.png";
               }}
             />
-
           </div>
-
         </Link>
-
       </div>
 
-
-      {/* ================================= */}
       {/* INFORMACIÓN */}
-      {/* ================================= */}
-
       <div className="p-5 sm:p-6">
 
         {/* CATEGORÍA */}
-
-        <p className="
-          text-xs
-          text-[#315b91]
-          font-bold
-          uppercase
-          tracking-wider
-          truncate
-        ">
+        <p
+          className="
+            text-xs
+            text-[#315b91]
+            font-bold
+            uppercase
+            tracking-wider
+            truncate
+          "
+        >
           {producto.categoria || "Producto"}
         </p>
 
-
         {/* MARCA */}
-
         {producto.marca && (
-          <p className="
-            text-xs
-            sm:text-sm
-            text-gray-400
-            mt-1
-            truncate
-          ">
+          <p
+            className="
+              text-xs
+              sm:text-sm
+              text-gray-400
+              mt-1
+              truncate
+            "
+          >
             {producto.marca}
           </p>
         )}
 
-
         {/* NOMBRE */}
-
         <Link
-          to={`/productos/${producto.id}`}
+          to={urlProducto}
           className="block"
         >
-
           <h3
             className="
               mt-2
@@ -209,114 +199,109 @@ function ProductCard({ producto }) {
           >
             {producto.nombre}
           </h3>
-
         </Link>
 
-
-        {/* ================================= */}
         {/* PRECIO */}
-        {/* ================================= */}
-
         <div className="mt-5">
-
           {tieneOferta ? (
-
             <>
-
-              <p className="
-                text-xs
-                text-gray-400
-                uppercase
-                tracking-wide
-              ">
+              <p
+                className="
+                  text-xs
+                  text-gray-400
+                  uppercase
+                  tracking-wide
+                "
+              >
                 Precio anterior
               </p>
 
-              <p className="
-                text-base
-                sm:text-lg
-                text-gray-400
-                line-through
-              ">
-                ${producto.precio.toLocaleString("es-AR")}
+              <p
+                className="
+                  text-base
+                  sm:text-lg
+                  text-gray-400
+                  line-through
+                "
+              >
+                $
+                {producto.precio.toLocaleString(
+                  "es-AR"
+                )}
               </p>
 
               <div className="flex items-end gap-2 mt-1">
-
                 <div>
-
-                  <p className="
-                    text-xs
-                    text-[#315b91]
-                    font-bold
-                    uppercase
-                    tracking-wide
-                  ">
+                  <p
+                    className="
+                      text-xs
+                      text-[#315b91]
+                      font-bold
+                      uppercase
+                      tracking-wide
+                    "
+                  >
                     Precio oferta
                   </p>
 
-                  <p className="
+                  <p
+                    className="
+                      text-2xl
+                      sm:text-3xl
+                      font-extrabold
+                      text-[#315b91]
+                      leading-none
+                      mt-1
+                    "
+                  >
+                    $
+                    {precioMostrar.toLocaleString(
+                      "es-AR"
+                    )}
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : (
+            producto.precio > 0 && (
+              <>
+                <p
+                  className="
+                    text-xs
+                    text-gray-400
+                    uppercase
+                    tracking-wide
+                  "
+                >
+                  Precio
+                </p>
+
+                <p
+                  className="
                     text-2xl
                     sm:text-3xl
                     font-extrabold
                     text-[#315b91]
                     leading-none
                     mt-1
-                  ">
-                    ${precioMostrar.toLocaleString("es-AR")}
-                  </p>
-
-                </div>
-
-              </div>
-
-            </>
-
-          ) : (
-
-            producto.precio > 0 && (
-
-              <>
-
-                <p className="
-                  text-xs
-                  text-gray-400
-                  uppercase
-                  tracking-wide
-                ">
-                  Precio
+                  "
+                >
+                  $
+                  {producto.precio.toLocaleString(
+                    "es-AR"
+                  )}
                 </p>
-
-                <p className="
-                  text-2xl
-                  sm:text-3xl
-                  font-extrabold
-                  text-[#315b91]
-                  leading-none
-                  mt-1
-                ">
-                  ${producto.precio.toLocaleString("es-AR")}
-                </p>
-
               </>
-
             )
-
           )}
-
         </div>
 
-
-        {/* ================================= */}
         {/* ACCIONES */}
-        {/* ================================= */}
-
         <div className="mt-5 space-y-2.5">
 
           {/* VER DETALLES */}
-
           <Link
-            to={`/productos/${producto.id}`}
+            to={urlProducto}
             className="
               flex
               items-center
@@ -349,12 +334,9 @@ function ProductCard({ producto }) {
                 group-hover:translate-x-1
               "
             />
-
           </Link>
 
-
           {/* WHATSAPP */}
-
           <a
             href={`https://wa.me/5492614685967?text=${mensajeWhatsApp}`}
             target="_blank"
@@ -380,20 +362,15 @@ function ProductCard({ producto }) {
               sm:text-base
             "
           >
-
             <MessageCircle
               size={18}
               strokeWidth={2}
             />
 
             WhatsApp
-
           </a>
-
         </div>
-
       </div>
-
     </article>
   );
 }

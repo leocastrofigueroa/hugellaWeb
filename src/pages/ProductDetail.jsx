@@ -1,6 +1,8 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+
 import productsPromise from "../data/products.js";
+import { crearSlug } from "../utils/slug.js";
 
 const posiblesImagenes = [
   "principal.png",
@@ -19,144 +21,285 @@ const posiblesImagenes = [
 function ProductDetail() {
   const { id } = useParams();
 
-  const [producto, setProducto] =
-    useState(null);
-
-  const [cargando, setCargando] =
-    useState(true);
-
-  const [imagenes, setImagenes] =
-    useState([]);
-
-  const [imagenPrincipal, setImagenPrincipal] =
-    useState("");
+  const [producto, setProducto] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [imagenes, setImagenes] = useState([]);
+  const [imagenPrincipal, setImagenPrincipal] = useState("");
 
   // ==========================================
   // CARGAR PRODUCTO
   // ==========================================
 
   useEffect(() => {
+    setCargando(true);
 
     productsPromise
       .then((productos) => {
-
-        const idBuscado = String(id)
+        const valorURL = decodeURIComponent(id || "")
           .trim()
-          .toUpperCase();
+          .toLowerCase();
 
-        const encontrado =
-          productos.find(
-            (p) =>
-              String(p.id)
-                .trim()
-                .toUpperCase() ===
-              idBuscado
+        const encontrado = productos.find((p) => {
+          const slugProducto = crearSlug(p.nombre);
+
+          const idProducto = String(p.id || "")
+            .trim()
+            .toLowerCase();
+
+          return (
+            slugProducto === valorURL ||
+            idProducto === valorURL
           );
+        });
 
-        setProducto(
-          encontrado || null
-        );
-
+        setProducto(encontrado || null);
         setCargando(false);
       })
       .catch((error) => {
-
         console.error(
           "Error cargando producto:",
           error
         );
 
+        setProducto(null);
         setCargando(false);
       });
-
   }, [id]);
+
+  // ==========================================
+  // SEO DEL PRODUCTO
+  // ==========================================
+
+  useEffect(() => {
+    if (!producto) return;
+
+    const titulo = `${producto.nombre} | HUGELLA`;
+
+    const descripcionBase = producto.descripcion
+      ? producto.descripcion
+      : `${producto.nombre}${producto.marca
+        ? ` de ${producto.marca}`
+        : ""
+      }. Consultá precio y disponibilidad en HUGELLA Equipamiento Comercial.`;
+
+    const descripcion = descripcionBase
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 160);
+
+    const canonical =
+      `https://www.hugella.com.ar/productos/${crearSlug(
+        producto.nombre
+      )}`;
+
+    // TÍTULO
+    document.title = titulo;
+
+    // DESCRIPTION
+    let metaDescription = document.querySelector(
+      'meta[name="description"]'
+    );
+
+    if (!metaDescription) {
+      metaDescription =
+        document.createElement("meta");
+
+      metaDescription.setAttribute(
+        "name",
+        "description"
+      );
+
+      document.head.appendChild(metaDescription);
+    }
+
+    metaDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    // CANONICAL
+    let canonicalLink = document.querySelector(
+      'link[rel="canonical"]'
+    );
+
+    if (!canonicalLink) {
+      canonicalLink =
+        document.createElement("link");
+
+      canonicalLink.setAttribute(
+        "rel",
+        "canonical"
+      );
+
+      document.head.appendChild(canonicalLink);
+    }
+
+    canonicalLink.setAttribute(
+      "href",
+      canonical
+    );
+
+    // OPEN GRAPH TITLE
+    let ogTitle = document.querySelector(
+      'meta[property="og:title"]'
+    );
+
+    if (!ogTitle) {
+      ogTitle =
+        document.createElement("meta");
+
+      ogTitle.setAttribute(
+        "property",
+        "og:title"
+      );
+
+      document.head.appendChild(ogTitle);
+    }
+
+    ogTitle.setAttribute(
+      "content",
+      titulo
+    );
+
+    // OPEN GRAPH DESCRIPTION
+    let ogDescription = document.querySelector(
+      'meta[property="og:description"]'
+    );
+
+    if (!ogDescription) {
+      ogDescription =
+        document.createElement("meta");
+
+      ogDescription.setAttribute(
+        "property",
+        "og:description"
+      );
+
+      document.head.appendChild(
+        ogDescription
+      );
+    }
+
+    ogDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    // OPEN GRAPH URL
+    let ogUrl = document.querySelector(
+      'meta[property="og:url"]'
+    );
+
+    if (!ogUrl) {
+      ogUrl =
+        document.createElement("meta");
+
+      ogUrl.setAttribute(
+        "property",
+        "og:url"
+      );
+
+      document.head.appendChild(ogUrl);
+    }
+
+    ogUrl.setAttribute(
+      "content",
+      canonical
+    );
+
+    // Al salir del producto restauramos SEO general
+    return () => {
+      document.title =
+        "HUGELLA | Equipamiento Comercial";
+
+      const descriptionGeneral =
+        "Equipamiento comercial, electrodomésticos, tecnología, herramientas y productos para tu negocio y hogar. Conocé productos y ofertas de HUGELLA.";
+
+      metaDescription.setAttribute(
+        "content",
+        descriptionGeneral
+      );
+
+      canonicalLink.setAttribute(
+        "href",
+        "https://www.hugella.com.ar/"
+      );
+
+      ogTitle.setAttribute(
+        "content",
+        "HUGELLA | Equipamiento Comercial"
+      );
+
+      ogDescription.setAttribute(
+        "content",
+        "Equipamiento comercial, electrodomésticos, tecnología, herramientas y productos para tu negocio y hogar."
+      );
+
+      ogUrl.setAttribute(
+        "content",
+        "https://www.hugella.com.ar/"
+      );
+    };
+  }, [producto]);
 
   // ==========================================
   // BUSCAR IMÁGENES EXISTENTES
   // ==========================================
 
   useEffect(() => {
-
     if (!producto) return;
 
     let cancelado = false;
 
-    const comprobarImagen = (
-      ruta
-    ) => {
+    const comprobarImagen = (ruta) => {
+      return new Promise((resolve) => {
+        const img = new Image();
 
-      return new Promise(
-        (resolve) => {
+        img.onload = () =>
+          resolve(true);
 
-          const img =
-            new Image();
+        img.onerror = () =>
+          resolve(false);
 
-          img.onload = () =>
-            resolve(true);
-
-          img.onerror = () =>
-            resolve(false);
-
-          img.src = ruta;
-        }
-      );
+        img.src = ruta;
+      });
     };
 
-    const comprobarImagenes =
-      async () => {
+    const comprobarImagenes = async () => {
+      const imagenesValidas = [];
 
-        const imagenesValidas =
-          [];
+      for (const nombre of posiblesImagenes) {
+        const ruta =
+          `/imgHugella/productos/${encodeURIComponent(
+            producto.carpeta
+          )}/${nombre}`;
 
-        for (
-          const nombre of posiblesImagenes
-        ) {
+        const existe =
+          await comprobarImagen(ruta);
 
-          const ruta =
-            `/imgHugella/productos/${encodeURIComponent(
-              producto.carpeta
-            )}/${nombre}`;
-
-          const existe =
-            await comprobarImagen(
-              ruta
-            );
-
-          if (existe) {
-            imagenesValidas.push(
-              ruta
-            );
-          }
+        if (existe) {
+          imagenesValidas.push(ruta);
         }
+      }
 
-        if (!cancelado) {
+      if (!cancelado) {
+        setImagenes(imagenesValidas);
 
-          setImagenes(
-            imagenesValidas
+        if (imagenesValidas.length > 0) {
+          setImagenPrincipal(
+            imagenesValidas[0]
           );
-
-          if (
-            imagenesValidas.length >
-            0
-          ) {
-
-            setImagenPrincipal(
-              imagenesValidas[0]
-            );
-
-          } else {
-
-            setImagenPrincipal("");
-          }
+        } else {
+          setImagenPrincipal("");
         }
-      };
+      }
+    };
 
     comprobarImagenes();
 
     return () => {
       cancelado = true;
     };
-
   }, [producto]);
 
   // ==========================================
@@ -164,14 +307,11 @@ function ProductDetail() {
   // ==========================================
 
   if (cargando) {
-
     return (
       <section className="max-w-7xl mx-auto px-6 py-20">
-
         <p className="text-gray-500 text-lg">
           Cargando producto...
         </p>
-
       </section>
     );
   }
@@ -181,10 +321,8 @@ function ProductDetail() {
   // ==========================================
 
   if (!producto) {
-
     return (
       <section className="max-w-7xl mx-auto px-6 py-20">
-
         <h1 className="text-3xl font-bold">
           Producto no encontrado
         </h1>
@@ -201,7 +339,6 @@ function ProductDetail() {
         >
           ← Volver a productos
         </Link>
-
       </section>
     );
   }
@@ -258,9 +395,7 @@ function ProductDetail() {
               min-h-[500px]
             "
           >
-
             {imagenPrincipal ? (
-
               <img
                 src={imagenPrincipal}
                 alt={producto.nombre}
@@ -270,21 +405,16 @@ function ProductDetail() {
                   object-contain
                 "
               />
-
             ) : (
-
               <div className="text-gray-400 text-center">
                 No hay imágenes disponibles
               </div>
-
             )}
-
           </div>
 
           {/* MINIATURAS */}
 
           {imagenes.length > 1 && (
-
             <div
               className="
                 flex
@@ -294,10 +424,8 @@ function ProductDetail() {
                 flex-wrap
               "
             >
-
               {imagenes.map(
                 (imagen, index) => (
-
                   <button
                     key={imagen}
                     type="button"
@@ -314,35 +442,28 @@ function ProductDetail() {
                       overflow-hidden
                       border-2
                       transition
-                      ${
-                        imagenPrincipal ===
+                      ${imagenPrincipal ===
                         imagen
-                          ? "border-blue-600"
-                          : "border-gray-200 hover:border-blue-400"
+                        ? "border-blue-600"
+                        : "border-gray-200 hover:border-blue-400"
                       }
                     `}
                   >
-
                     <img
                       src={imagen}
-                      alt={`${producto.nombre} ${
-                        index + 1
-                      }`}
+                      alt={`${producto.nombre} ${index + 1
+                        }`}
                       className="
                         w-full
                         h-full
                         object-contain
                       "
                     />
-
                   </button>
-
                 )
               )}
-
             </div>
           )}
-
         </div>
 
         {/* ================================= */}
@@ -366,7 +487,6 @@ function ProductDetail() {
           {/* MARCA */}
 
           {producto.marca && (
-
             <p
               className="
                 text-blue-600
@@ -376,7 +496,6 @@ function ProductDetail() {
             >
               {producto.marca}
             </p>
-
           )}
 
           {/* NOMBRE */}
@@ -394,7 +513,6 @@ function ProductDetail() {
           {/* PRECIO */}
 
           {producto.precio > 0 && (
-
             <p
               className="
                 text-5xl
@@ -408,7 +526,6 @@ function ProductDetail() {
                 "es-AR"
               )}
             </p>
-
           )}
 
           {/* WHATSAPP */}
@@ -438,9 +555,7 @@ function ProductDetail() {
           {/* DESCRIPCIÓN */}
 
           {producto.descripcion && (
-
             <div className="mt-12">
-
               <h2
                 className="
                   text-2xl
@@ -460,15 +575,10 @@ function ProductDetail() {
               >
                 {producto.descripcion}
               </p>
-
             </div>
-
           )}
-
         </div>
-
       </div>
-
     </section>
   );
 }
