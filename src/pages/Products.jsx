@@ -20,6 +20,114 @@ function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   /* ==========================================
+     SEO
+  ========================================== */
+
+  useEffect(() => {
+    const titulo =
+      "Productos | HUGELLA Equipamiento Comercial";
+
+    const descripcion =
+      "Conocé el catálogo de HUGELLA: equipamiento comercial, electrodomésticos, tecnología, herramientas y productos para tu negocio y hogar.";
+
+    const canonical =
+      "https://www.hugella.com.ar/productos";
+
+    document.title = titulo;
+
+    let metaDescription = document.querySelector(
+      'meta[name="description"]'
+    );
+
+    if (!metaDescription) {
+      metaDescription = document.createElement("meta");
+      metaDescription.setAttribute("name", "description");
+      document.head.appendChild(metaDescription);
+    }
+
+    metaDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    let canonicalLink = document.querySelector(
+      'link[rel="canonical"]'
+    );
+
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      document.head.appendChild(canonicalLink);
+    }
+
+    canonicalLink.setAttribute(
+      "href",
+      canonical
+    );
+
+    let ogTitle = document.querySelector(
+      'meta[property="og:title"]'
+    );
+
+    if (!ogTitle) {
+      ogTitle = document.createElement("meta");
+      ogTitle.setAttribute(
+        "property",
+        "og:title"
+      );
+      document.head.appendChild(ogTitle);
+    }
+
+    ogTitle.setAttribute(
+      "content",
+      titulo
+    );
+
+    let ogDescription = document.querySelector(
+      'meta[property="og:description"]'
+    );
+
+    if (!ogDescription) {
+      ogDescription =
+        document.createElement("meta");
+
+      ogDescription.setAttribute(
+        "property",
+        "og:description"
+      );
+
+      document.head.appendChild(
+        ogDescription
+      );
+    }
+
+    ogDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    let ogUrl = document.querySelector(
+      'meta[property="og:url"]'
+    );
+
+    if (!ogUrl) {
+      ogUrl = document.createElement("meta");
+
+      ogUrl.setAttribute(
+        "property",
+        "og:url"
+      );
+
+      document.head.appendChild(ogUrl);
+    }
+
+    ogUrl.setAttribute(
+      "content",
+      canonical
+    );
+  }, []);
+
+  /* ==========================================
      PARÁMETROS DE URL
   ========================================== */
 
@@ -163,10 +271,6 @@ function Products() {
           ?.toLowerCase()
           .trim() || "";
 
-      /* ==============================
-         CATEGORÍA
-      ============================== */
-
       let coincideCategoria = true;
 
       if (categoria !== "Todas") {
@@ -174,10 +278,6 @@ function Products() {
           categoriaProducto ===
           categoria.toLowerCase().trim();
       }
-
-      /* ==============================
-         GRUPOS
-      ============================== */
 
       if (grupoURL === "calefaccion") {
         const categoriasCalefaccion = [
@@ -200,26 +300,14 @@ function Products() {
           categoriaProducto === "cortadoras";
       }
 
-      /* ==============================
-         PRECIO
-      ============================== */
-
       const coincidePrecio =
         precioMaximo === 0 ||
         Number(producto.precio) <= precioMaximo;
-
-      /* ==============================
-         MARCA
-      ============================== */
 
       const coincideMarca =
         marca === "Todas" ||
         marcaProducto ===
           marca.toLowerCase().trim();
-
-      /* ==============================
-         BÚSQUEDA
-      ============================== */
 
       const coincideBusqueda =
         textoBusqueda === "" ||
@@ -232,10 +320,6 @@ function Products() {
         producto.categoria
           ?.toLowerCase()
           .includes(textoBusqueda);
-
-      /* ==============================
-         OFERTAS
-      ============================== */
 
       const coincideOferta =
         !soloOfertas || producto.oferta === true;
@@ -396,10 +480,6 @@ function Products() {
   return (
     <main className="min-h-screen bg-[#f5f6f8]">
 
-      {/* ======================================
-          CABECERA
-      ====================================== */}
-
       <ParallaxSection
         speed={0.05}
         className="relative z-10"
@@ -441,17 +521,9 @@ function Products() {
         </section>
       </ParallaxSection>
 
-      {/* ======================================
-          CONTENIDO
-      ====================================== */}
-
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
 
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
-
-          {/* ==================================
-              SIDEBAR FILTROS
-          ================================== */}
 
           <aside className="lg:sticky lg:top-24 h-fit">
 
@@ -462,8 +534,6 @@ function Products() {
                   Filtros
                 </h2>
               </div>
-
-              {/* OFERTAS */}
 
               <div className="px-6 py-5 border-b border-gray-200">
 
@@ -497,8 +567,6 @@ function Products() {
 
               </div>
 
-              {/* CATEGORÍA */}
-
               <div className="px-6 py-5 border-b border-gray-200">
 
                 <label className="block font-bold text-gray-800 mb-3">
@@ -523,8 +591,6 @@ function Products() {
                 </select>
 
               </div>
-
-              {/* MARCA */}
 
               <div className="px-6 py-5 border-b border-gray-200">
 
@@ -556,8 +622,6 @@ function Products() {
                 </select>
 
               </div>
-
-              {/* PRECIO */}
 
               <div className="px-6 py-5">
 
@@ -595,8 +659,6 @@ function Products() {
 
               </div>
 
-              {/* LIMPIAR */}
-
               {(categoria !== "Todas" ||
                 marca !== "Todas" ||
                 precioMaximo !== 0 ||
@@ -621,13 +683,7 @@ function Products() {
 
           </aside>
 
-          {/* ==================================
-              PRODUCTOS
-          ================================== */}
-
           <div className="min-w-0">
-
-            {/* CABECERA RESULTADOS */}
 
             <div className="flex flex-col gap-5 mb-6">
 
@@ -647,8 +703,6 @@ function Products() {
                   </p>
 
                 </div>
-
-                {/* ORDEN */}
 
                 <div className="flex items-center gap-3">
 
@@ -686,8 +740,6 @@ function Products() {
 
               </div>
 
-              {/* BUSCADOR */}
-
               <div className="relative">
 
                 <svg
@@ -719,10 +771,6 @@ function Products() {
               </div>
 
             </div>
-
-            {/* =================================
-                GRILLA
-            ================================= */}
 
             {productosFiltrados.length > 0 ? (
 

@@ -1,6 +1,139 @@
+import { useEffect } from "react";
 import ParallaxSection from "../components/ParallaxSection";
 
 function About() {
+  /* ==========================================
+     SEO
+  ========================================== */
+
+  useEffect(() => {
+    const titulo =
+      "Nosotros | HUGELLA Equipamiento Comercial";
+
+    const descripcion =
+      "Conocé HUGELLA, una empresa familiar de equipamiento comercial respaldada por más de 15 años de experiencia en el rubro.";
+
+    const canonical =
+      "https://www.hugella.com.ar/nosotros";
+
+    document.title = titulo;
+
+    let metaDescription = document.querySelector(
+      'meta[name="description"]'
+    );
+
+    if (!metaDescription) {
+      metaDescription =
+        document.createElement("meta");
+
+      metaDescription.setAttribute(
+        "name",
+        "description"
+      );
+
+      document.head.appendChild(
+        metaDescription
+      );
+    }
+
+    metaDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    let canonicalLink = document.querySelector(
+      'link[rel="canonical"]'
+    );
+
+    if (!canonicalLink) {
+      canonicalLink =
+        document.createElement("link");
+
+      canonicalLink.setAttribute(
+        "rel",
+        "canonical"
+      );
+
+      document.head.appendChild(
+        canonicalLink
+      );
+    }
+
+    canonicalLink.setAttribute(
+      "href",
+      canonical
+    );
+
+    let ogTitle = document.querySelector(
+      'meta[property="og:title"]'
+    );
+
+    if (!ogTitle) {
+      ogTitle =
+        document.createElement("meta");
+
+      ogTitle.setAttribute(
+        "property",
+        "og:title"
+      );
+
+      document.head.appendChild(
+        ogTitle
+      );
+    }
+
+    ogTitle.setAttribute(
+      "content",
+      titulo
+    );
+
+    let ogDescription = document.querySelector(
+      'meta[property="og:description"]'
+    );
+
+    if (!ogDescription) {
+      ogDescription =
+        document.createElement("meta");
+
+      ogDescription.setAttribute(
+        "property",
+        "og:description"
+      );
+
+      document.head.appendChild(
+        ogDescription
+      );
+    }
+
+    ogDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    let ogUrl = document.querySelector(
+      'meta[property="og:url"]'
+    );
+
+    if (!ogUrl) {
+      ogUrl =
+        document.createElement("meta");
+
+      ogUrl.setAttribute(
+        "property",
+        "og:url"
+      );
+
+      document.head.appendChild(
+        ogUrl
+      );
+    }
+
+    ogUrl.setAttribute(
+      "content",
+      canonical
+    );
+  }, []);
+
   return (
     <main className="bg-[#f5f6f8] overflow-hidden">
 
@@ -45,7 +178,6 @@ function About() {
         </section>
       </ParallaxSection>
 
-
       {/* ===================================================== */}
       {/* NUESTRA HISTORIA */}
       {/* ===================================================== */}
@@ -87,7 +219,6 @@ function About() {
 
               </div>
 
-
               {/* TEXTO */}
 
               <div>
@@ -127,7 +258,6 @@ function About() {
         </section>
       </ParallaxSection>
 
-
       {/* ===================================================== */}
       {/* EXPERIENCIA */}
       {/* ===================================================== */}
@@ -157,7 +287,6 @@ function About() {
               </p>
 
             </div>
-
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16">
 
@@ -207,7 +336,6 @@ function About() {
         </section>
       </ParallaxSection>
 
-
       {/* ===================================================== */}
       {/* QUÉ OFRECEMOS */}
       {/* ===================================================== */}
@@ -239,7 +367,6 @@ function About() {
                 </p>
 
               </div>
-
 
               <div className="grid grid-cols-2 gap-4">
 
@@ -286,7 +413,6 @@ function About() {
         </section>
       </ParallaxSection>
 
-
       {/* ===================================================== */}
       {/* NUESTRA DIFERENCIA */}
       {/* ===================================================== */}
@@ -316,7 +442,6 @@ function About() {
               </p>
 
             </div>
-
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
 
@@ -362,7 +487,6 @@ function About() {
         </section>
       </ParallaxSection>
 
-
       {/* ===================================================== */}
       {/* FUTURO */}
       {/* ===================================================== */}
@@ -395,7 +519,6 @@ function About() {
               comienzo: la cercanía, la atención y el compromiso con
               nuestros clientes.
             </p>
-
 
             <div className="mt-12 inline-flex items-center gap-4 bg-[#315b91] text-white px-8 py-4 rounded-2xl font-bold shadow-xl hover:scale-105 transition-transform duration-300">
 

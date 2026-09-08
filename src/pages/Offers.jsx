@@ -1,10 +1,130 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
 import productsPromise from "../data/products.js";
+import { crearSlug } from "../utils/slug.js";
 
 function Offers() {
   const [products, setProducts] = useState([]);
   const [cargando, setCargando] = useState(true);
+
+  /* ==========================================
+     SEO
+  ========================================== */
+
+  useEffect(() => {
+    const titulo =
+      "Ofertas | HUGELLA Equipamiento Comercial";
+
+    const descripcion =
+      "Descubrí las ofertas de HUGELLA en equipamiento comercial, electrodomésticos, tecnología, herramientas y productos para tu negocio y hogar.";
+
+    const canonical =
+      "https://www.hugella.com.ar/ofertas";
+
+    document.title = titulo;
+
+    let metaDescription = document.querySelector(
+      'meta[name="description"]'
+    );
+
+    if (!metaDescription) {
+      metaDescription = document.createElement("meta");
+      metaDescription.setAttribute(
+        "name",
+        "description"
+      );
+      document.head.appendChild(metaDescription);
+    }
+
+    metaDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    let canonicalLink = document.querySelector(
+      'link[rel="canonical"]'
+    );
+
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute(
+        "rel",
+        "canonical"
+      );
+      document.head.appendChild(canonicalLink);
+    }
+
+    canonicalLink.setAttribute(
+      "href",
+      canonical
+    );
+
+    let ogTitle = document.querySelector(
+      'meta[property="og:title"]'
+    );
+
+    if (!ogTitle) {
+      ogTitle = document.createElement("meta");
+      ogTitle.setAttribute(
+        "property",
+        "og:title"
+      );
+      document.head.appendChild(ogTitle);
+    }
+
+    ogTitle.setAttribute(
+      "content",
+      titulo
+    );
+
+    let ogDescription = document.querySelector(
+      'meta[property="og:description"]'
+    );
+
+    if (!ogDescription) {
+      ogDescription =
+        document.createElement("meta");
+
+      ogDescription.setAttribute(
+        "property",
+        "og:description"
+      );
+
+      document.head.appendChild(
+        ogDescription
+      );
+    }
+
+    ogDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    let ogUrl = document.querySelector(
+      'meta[property="og:url"]'
+    );
+
+    if (!ogUrl) {
+      ogUrl = document.createElement("meta");
+
+      ogUrl.setAttribute(
+        "property",
+        "og:url"
+      );
+
+      document.head.appendChild(ogUrl);
+    }
+
+    ogUrl.setAttribute(
+      "content",
+      canonical
+    );
+  }, []);
+
+  /* ==========================================
+     CARGAR PRODUCTOS
+  ========================================== */
 
   useEffect(() => {
     productsPromise
@@ -13,15 +133,25 @@ function Offers() {
         setCargando(false);
       })
       .catch((error) => {
-        console.error("Error cargando ofertas:", error);
+        console.error(
+          "Error cargando ofertas:",
+          error
+        );
         setCargando(false);
       });
   }, []);
 
-  // SOLO productos marcados como OFERTA = SI
+  /* ==========================================
+     SOLO PRODUCTOS EN OFERTA
+  ========================================== */
+
   const ofertas = products.filter(
     (producto) => producto.oferta === true
   );
+
+  /* ==========================================
+     CARGANDO
+  ========================================== */
 
   if (cargando) {
     return (
@@ -51,24 +181,24 @@ function Offers() {
     );
   }
 
-  // =========================================
-  // PRIMERA OFERTA
-  // =========================================
+  /* ==========================================
+     PRIMERA OFERTA
+  ========================================== */
 
   const ofertaPrincipal = ofertas[0];
 
-  // =========================================
-  // RESTO DE LAS OFERTAS
-  // =========================================
+  /* ==========================================
+     RESTO DE LAS OFERTAS
+  ========================================== */
 
   const otrasOfertas = ofertas.slice(1);
 
   return (
     <main className="min-h-screen bg-[#f5f6f8]">
 
-      {/* ========================================= */}
-      {/* ENCABEZADO */}
-      {/* ========================================= */}
+      {/* =========================================
+          ENCABEZADO
+      ========================================= */}
 
       <section className="relative overflow-hidden bg-[#315b91] text-white">
 
@@ -93,10 +223,9 @@ function Offers() {
 
       </section>
 
-
-      {/* ========================================= */}
-      {/* CONTENIDO */}
-      {/* ========================================= */}
+      {/* =========================================
+          CONTENIDO
+      ========================================= */}
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
@@ -116,10 +245,9 @@ function Offers() {
 
         </div>
 
-
-        {/* ========================================= */}
-        {/* SIN OFERTAS */}
-        {/* ========================================= */}
+        {/* =========================================
+            SIN OFERTAS
+        ========================================= */}
 
         {ofertas.length === 0 ? (
 
@@ -146,20 +274,21 @@ function Offers() {
         ) : (
 
           <>
-            {/* ========================================= */}
-            {/* OFERTA PRINCIPAL — GRANDE */}
-            {/* ========================================= */}
+
+            {/* =========================================
+                OFERTA PRINCIPAL
+            ========================================= */}
 
             {ofertaPrincipal && (
 
               <Link
-                to={`/productos/${ofertaPrincipal.id}`}
+                to={`/productos/${crearSlug(
+                  ofertaPrincipal.nombre
+                )}`}
                 className="group block mb-20"
               >
 
                 <article className="relative bg-white rounded-[2rem] overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
-
-                  {/* ETIQUETA */}
 
                   <div className="absolute top-7 left-7 z-20">
 
@@ -168,9 +297,6 @@ function Offers() {
                     </span>
 
                   </div>
-
-
-                  {/* CONTENIDO */}
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
 
@@ -186,20 +312,21 @@ function Offers() {
                         {ofertaPrincipal.nombre}
                       </h3>
 
-
-                      {/* PRECIOS */}
-
                       <div className="mt-8">
 
                         {ofertaPrincipal.precioOferta ? (
 
                           <>
+
                             <p className="text-base text-gray-400">
                               Precio anterior
                             </p>
 
                             <p className="text-xl text-gray-400 line-through">
-                              ${ofertaPrincipal.precio.toLocaleString("es-AR")}
+                              $
+                              {ofertaPrincipal.precio.toLocaleString(
+                                "es-AR"
+                              )}
                             </p>
 
                             <p className="text-base text-[#315b91] font-semibold mt-2">
@@ -212,30 +339,33 @@ function Offers() {
                                 "es-AR"
                               )}
                             </p>
+
                           </>
 
                         ) : (
 
                           <>
+
                             <p className="text-base text-gray-400">
                               Precio
                             </p>
 
                             <p className="text-5xl sm:text-6xl font-extrabold text-[#315b91]">
                               $
-                              {ofertaPrincipal.precio.toLocaleString("es-AR")}
+                              {ofertaPrincipal.precio.toLocaleString(
+                                "es-AR"
+                              )}
                             </p>
+
                           </>
 
                         )}
 
                       </div>
 
-
-                      {/* BOTÓN */}
-
                       <div className="mt-8 text-[#315b91] font-extrabold text-lg">
                         Ver producto
+
                         <span className="inline-block ml-2 text-2xl transition-transform duration-300 group-hover:translate-x-2">
                           →
                         </span>
@@ -243,8 +373,7 @@ function Offers() {
 
                     </div>
 
-
-                    {/* IMAGEN GRANDE */}
+                    {/* IMAGEN */}
 
                     <div className="relative min-h-[400px] lg:min-h-full bg-white flex items-center justify-center p-8 sm:p-12 lg:p-16 overflow-hidden">
 
@@ -255,7 +384,8 @@ function Offers() {
                           alt={ofertaPrincipal.nombre}
                           className="w-full h-full max-h-[450px] object-contain transition-transform duration-700 ease-out group-hover:scale-105"
                           onError={(e) => {
-                            e.currentTarget.style.display = "none";
+                            e.currentTarget.style.display =
+                              "none";
                           }}
                         />
 
@@ -274,168 +404,165 @@ function Offers() {
                 </article>
 
               </Link>
+
             )}
 
-
-            {/* ========================================= */}
-            {/* LAS OTRAS 9 OFERTAS — CASCADA */}
-            {/* ========================================= */}
+            {/* =========================================
+                RESTO DE OFERTAS
+            ========================================= */}
 
             {otrasOfertas.length > 0 && (
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 pb-24">
 
-                {otrasOfertas.map((producto, index) => {
+                {otrasOfertas.map(
+                  (producto, index) => {
 
-                  /*
-                    Efecto cascada:
-                    1 → baja
-                    2 → baja más
-                    3 → vuelve arriba
-                    4 → baja
-                    etc.
-                  */
+                    const posiciones = [
+                      "lg:translate-y-0",
+                      "lg:translate-y-10",
+                      "lg:translate-y-20",
+                      "lg:translate-y-0",
+                      "lg:translate-y-10",
+                      "lg:translate-y-20",
+                      "lg:translate-y-0",
+                      "lg:translate-y-10",
+                      "lg:translate-y-20",
+                    ];
 
-                  const posiciones = [
-                    "lg:translate-y-0",
-                    "lg:translate-y-10",
-                    "lg:translate-y-20",
-                    "lg:translate-y-0",
-                    "lg:translate-y-10",
-                    "lg:translate-y-20",
-                    "lg:translate-y-0",
-                    "lg:translate-y-10",
-                    "lg:translate-y-20",
-                  ];
+                    const posicion =
+                      posiciones[
+                      index % posiciones.length
+                      ];
 
-                  const posicion =
-                    posiciones[index % posiciones.length];
+                    return (
 
-                  return (
+                      <Link
+                        key={producto.id}
+                        to={`/productos/${crearSlug(
+                          producto.nombre
+                        )}`}
+                        className={`group block ${posicion}`}
+                      >
 
-                    <Link
-                      key={producto.id}
-                      to={`/productos/${producto.id}`}
-                      className={`group block ${posicion}`}
-                    >
+                        <article className="relative bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
 
-                      <article className="relative bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                          <div className="absolute top-4 left-4 z-10">
 
-                        {/* ETIQUETA */}
+                            <span className="inline-flex items-center bg-[#315b91] text-white text-xs font-extrabold uppercase tracking-wide px-4 py-2 rounded-full shadow-lg">
+                              Oferta
+                            </span>
 
-                        <div className="absolute top-4 left-4 z-10">
+                          </div>
 
-                          <span className="inline-flex items-center bg-[#315b91] text-white text-xs font-extrabold uppercase tracking-wide px-4 py-2 rounded-full shadow-lg">
-                            Oferta
-                          </span>
+                          {/* IMAGEN */}
 
-                        </div>
+                          <div className="aspect-square bg-white flex items-center justify-center p-6 overflow-hidden">
 
+                            {producto.carpeta ? (
 
-                        {/* IMAGEN */}
-
-                        <div className="aspect-square bg-white flex items-center justify-center p-6 overflow-hidden">
-
-                          {producto.carpeta ? (
-
-                            <img
-                              src={`/imgHugella/productos/${producto.carpeta}/1.png`}
-                              alt={producto.nombre}
-                              className="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-110"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
-                            />
-
-                          ) : (
-
-                            <div className="text-gray-300 text-sm">
-                              Imagen no disponible
-                            </div>
-
-                          )}
-
-                        </div>
-
-
-                        {/* INFORMACIÓN */}
-
-                        <div className="p-6">
-
-                          <p className="text-sm text-gray-500 mb-2">
-                            {producto.marca}
-                          </p>
-
-                          <h3 className="font-bold text-lg leading-tight line-clamp-2 text-gray-900">
-                            {producto.nombre}
-                          </h3>
-
-
-                          {/* PRECIOS */}
-
-                          <div className="mt-5">
-
-                            {producto.precioOferta ? (
-
-                              <>
-                                <p className="text-sm text-gray-400">
-                                  Precio anterior
-                                </p>
-
-                                <p className="text-lg text-gray-400 line-through">
-                                  ${producto.precio.toLocaleString("es-AR")}
-                                </p>
-
-                                <p className="text-sm text-[#315b91] font-semibold mt-2">
-                                  Precio de oferta
-                                </p>
-
-                                <p className="text-3xl font-extrabold text-[#315b91]">
-                                  $
-                                  {producto.precioOferta.toLocaleString(
-                                    "es-AR"
-                                  )}
-                                </p>
-                              </>
+                              <img
+                                src={`/imgHugella/productos/${producto.carpeta}/1.png`}
+                                alt={producto.nombre}
+                                className="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-110"
+                                onError={(e) => {
+                                  e.currentTarget.style.display =
+                                    "none";
+                                }}
+                              />
 
                             ) : (
 
-                              <>
-                                <p className="text-sm text-gray-400">
-                                  Precio
-                                </p>
-
-                                <p className="text-3xl font-extrabold text-[#315b91]">
-                                  $
-                                  {producto.precio.toLocaleString("es-AR")}
-                                </p>
-                              </>
+                              <div className="text-gray-300 text-sm">
+                                Imagen no disponible
+                              </div>
 
                             )}
 
                           </div>
 
+                          {/* INFORMACIÓN */}
 
-                          {/* ACCIÓN */}
+                          <div className="p-6">
 
-                          <div className="mt-5 text-[#315b91] font-bold">
+                            <p className="text-sm text-gray-500 mb-2">
+                              {producto.marca}
+                            </p>
 
-                            Ver producto
+                            <h3 className="font-bold text-lg leading-tight line-clamp-2 text-gray-900">
+                              {producto.nombre}
+                            </h3>
 
-                            <span className="inline-block ml-1 transition-transform duration-300 group-hover:translate-x-1">
-                              →
-                            </span>
+                            <div className="mt-5">
+
+                              {producto.precioOferta ? (
+
+                                <>
+
+                                  <p className="text-sm text-gray-400">
+                                    Precio anterior
+                                  </p>
+
+                                  <p className="text-lg text-gray-400 line-through">
+                                    $
+                                    {producto.precio.toLocaleString(
+                                      "es-AR"
+                                    )}
+                                  </p>
+
+                                  <p className="text-sm text-[#315b91] font-semibold mt-2">
+                                    Precio de oferta
+                                  </p>
+
+                                  <p className="text-3xl font-extrabold text-[#315b91]">
+                                    $
+                                    {producto.precioOferta.toLocaleString(
+                                      "es-AR"
+                                    )}
+                                  </p>
+
+                                </>
+
+                              ) : (
+
+                                <>
+
+                                  <p className="text-sm text-gray-400">
+                                    Precio
+                                  </p>
+
+                                  <p className="text-3xl font-extrabold text-[#315b91]">
+                                    $
+                                    {producto.precio.toLocaleString(
+                                      "es-AR"
+                                    )}
+                                  </p>
+
+                                </>
+
+                              )}
+
+                            </div>
+
+                            <div className="mt-5 text-[#315b91] font-bold">
+
+                              Ver producto
+
+                              <span className="inline-block ml-1 transition-transform duration-300 group-hover:translate-x-1">
+                                →
+                              </span>
+
+                            </div>
 
                           </div>
 
-                        </div>
+                        </article>
 
-                      </article>
+                      </Link>
 
-                    </Link>
-
-                  );
-                })}
+                    );
+                  }
+                )}
 
               </div>
 
@@ -447,10 +574,9 @@ function Offers() {
 
       </section>
 
-
-      {/* ========================================= */}
-      {/* LLAMADO FINAL */}
-      {/* ========================================= */}
+      {/* =========================================
+          LLAMADO FINAL
+      ========================================= */}
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
 

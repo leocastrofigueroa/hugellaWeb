@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const CONTACTO_URL =
   "https://script.google.com/macros/s/AKfycbwzxeIv93ls0pdJmx6RUWqxGL9pNdJ-c_70K8V8L1_pPAR8xN9cz_ZGExr36hUPi0a41Q/exec";
@@ -7,6 +7,117 @@ function Contact() {
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
   const [error, setError] = useState("");
+
+  /* ==========================================
+     SEO
+  ========================================== */
+
+  useEffect(() => {
+    const titulo =
+      "Contacto | HUGELLA Equipamiento Comercial";
+
+    const descripcion =
+      "Contactá a HUGELLA para consultar por productos, equipamiento comercial, financiación y compras. Estamos para ayudarte.";
+
+    const canonical =
+      "https://www.hugella.com.ar/contacto";
+
+    document.title = titulo;
+
+    let metaDescription = document.querySelector(
+      'meta[name="description"]'
+    );
+
+    if (!metaDescription) {
+      metaDescription = document.createElement("meta");
+      metaDescription.setAttribute(
+        "name",
+        "description"
+      );
+      document.head.appendChild(metaDescription);
+    }
+
+    metaDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    let canonicalLink = document.querySelector(
+      'link[rel="canonical"]'
+    );
+
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute(
+        "rel",
+        "canonical"
+      );
+      document.head.appendChild(canonicalLink);
+    }
+
+    canonicalLink.setAttribute(
+      "href",
+      canonical
+    );
+
+    let ogTitle = document.querySelector(
+      'meta[property="og:title"]'
+    );
+
+    if (!ogTitle) {
+      ogTitle = document.createElement("meta");
+      ogTitle.setAttribute(
+        "property",
+        "og:title"
+      );
+      document.head.appendChild(ogTitle);
+    }
+
+    ogTitle.setAttribute(
+      "content",
+      titulo
+    );
+
+    let ogDescription = document.querySelector(
+      'meta[property="og:description"]'
+    );
+
+    if (!ogDescription) {
+      ogDescription = document.createElement("meta");
+      ogDescription.setAttribute(
+        "property",
+        "og:description"
+      );
+      document.head.appendChild(ogDescription);
+    }
+
+    ogDescription.setAttribute(
+      "content",
+      descripcion
+    );
+
+    let ogUrl = document.querySelector(
+      'meta[property="og:url"]'
+    );
+
+    if (!ogUrl) {
+      ogUrl = document.createElement("meta");
+      ogUrl.setAttribute(
+        "property",
+        "og:url"
+      );
+      document.head.appendChild(ogUrl);
+    }
+
+    ogUrl.setAttribute(
+      "content",
+      canonical
+    );
+  }, []);
+
+  /* ==========================================
+     ENVÍO DEL FORMULARIO
+  ========================================== */
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
@@ -38,7 +149,11 @@ function Contact() {
       setEnviado(true);
       e.target.reset();
     } catch (error) {
-      console.error("Error enviando consulta:", error);
+      console.error(
+        "Error enviando consulta:",
+        error
+      );
+
       setError(
         "No pudimos enviar la consulta. Por favor, intentá nuevamente."
       );
@@ -92,6 +207,7 @@ function Contact() {
             <div className="space-y-6">
 
               <div>
+
                 <p className="text-sm text-blue-200 mb-3">
                   WhatsApp
                 </p>
@@ -104,7 +220,7 @@ function Contact() {
                     rel="noopener noreferrer"
                     className="block font-semibold hover:text-blue-200 transition"
                   >
-                     · 549 261 468 5967
+                    · 549 261 468 5967
                   </a>
 
                   <a
@@ -113,13 +229,15 @@ function Contact() {
                     rel="noopener noreferrer"
                     className="block font-semibold hover:text-blue-200 transition"
                   >
-                     · 549 261 362 8574
+                    · 549 261 362 8574
                   </a>
 
                 </div>
+
               </div>
 
               <div>
+
                 <p className="text-sm text-blue-200">
                   Atención
                 </p>
@@ -127,9 +245,11 @@ function Contact() {
                 <p className="font-semibold">
                   Atención personalizada
                 </p>
+
               </div>
 
               <div>
+
                 <p className="text-sm text-blue-200">
                   HUGELLA
                 </p>
@@ -137,6 +257,7 @@ function Contact() {
                 <p className="font-semibold">
                   Equipamiento comercial
                 </p>
+
               </div>
 
             </div>
@@ -174,7 +295,7 @@ function Contact() {
 
               </div>
 
-              {/* TELEFONO + EMAIL */}
+              {/* TELÉFONO + EMAIL */}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
@@ -287,7 +408,9 @@ function Contact() {
               {/* MENSAJE DE ÉXITO */}
 
               {enviado && (
+
                 <div className="rounded-xl bg-green-50 border border-green-200 text-green-700 px-4 py-3">
+
                   <p className="font-semibold">
                     ¡Consulta enviada correctamente!
                   </p>
@@ -295,15 +418,19 @@ function Contact() {
                   <p className="text-sm mt-1">
                     Recibimos tus datos. Nos pondremos en contacto con vos.
                   </p>
+
                 </div>
+
               )}
 
               {/* MENSAJE DE ERROR */}
 
               {error && (
+
                 <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3">
                   {error}
                 </div>
+
               )}
 
               {/* BOTÓN */}
